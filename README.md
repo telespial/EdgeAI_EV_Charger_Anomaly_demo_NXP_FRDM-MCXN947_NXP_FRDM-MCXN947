@@ -10,6 +10,7 @@ Target hardware:
 ## Project Status
 - Repository initialized with self-contained docs, scripts, and MCUX SDK overlay wiring.
 - Firmware app is currently a bring-up baseline that prints a startup banner.
+- Gauge style baseline `cockpit_dark_v1` has been defined for a sports-cockpit look.
 - EV charger runtime logic is pending implementation.
 
 ## Quickstart
@@ -25,3 +26,7 @@ Target hardware:
 - `sdk_example/`: MCUX SDK examples overlay
 - `tools/`: setup/build/flash scripts
 - `docs/`: project state, runbook, restore points, and logs
+
+Style references:
+- `docs/GAUGE_STYLE.md`
+- `src/gauge_style.h`

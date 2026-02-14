@@ -8,4 +8,5 @@ State: initialized
 - GitHub remote configured at `origin` and `main` pushed.
 - Build/flash workflow scripts and MCUX SDK overlay are in place.
 - Firmware source currently provides baseline console bring-up.
-- EV charger monitoring logic remains to be implemented.
+- Added cockpit-style gauge theme preset (`cockpit_dark_v1`) and documentation.
+- EV charger monitoring logic and on-screen gauge rendering remain to be implemented.

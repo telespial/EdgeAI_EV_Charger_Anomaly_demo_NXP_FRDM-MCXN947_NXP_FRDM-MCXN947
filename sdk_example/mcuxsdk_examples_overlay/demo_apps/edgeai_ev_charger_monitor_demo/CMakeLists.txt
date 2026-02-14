@@ -15,6 +15,7 @@ endif()
 mcux_add_source(
     BASE_PATH ${EDGEAI_ROOT}
     SOURCES src/edgeai_ev_charger_monitor_demo.c
+            src/gauge_style.c
 )
 
 mcux_add_include(
