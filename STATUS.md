@@ -79,3 +79,5 @@ State: initialized
 - Firmware rebuilt and reflashed after spacing/alignment refinement.
 - Small-gauge pointers shortened to match the reduced pointer style used on the center gauge.
 - Firmware rebuilt and reflashed after small-gauge pointer-length update.
+- Large gauge center changed to yellow base fill (backmost center layer).
+- Firmware rebuilt and reflashed after yellow-center update.

@@ -244,3 +244,10 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
 - Shortened both small-gauge pointers to match the reduced needle style used on the main gauge.
 - Updated `src/gauge_render.c` small-gauge needle radii from `MID_R - 16` to `MID_R - 20` in erase/redraw paths for consistent rendering.
 - Rebuilt and flashed successfully to FRDM-MCXN947 (LinkServer probe `#1`).
+
+## Update 2026-02-14
+- Changed the large gauge center fill to yellow as the base/back layer.
+- Updated `src/gauge_render.c`:
+  - main inner ring fill color set to `RGB565(255, 208, 52)`
+  - main dynamic value-band clear color set to `RGB565(255, 208, 52)` to keep the center consistently yellow
+- Rebuilt and flashed successfully to FRDM-MCXN947 (LinkServer probe `#1`).

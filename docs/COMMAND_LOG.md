@@ -136,3 +136,7 @@ Format:
 - 2026-02-14 17:54:58 | MCUX_EXAMPLES_DIR=.../mcuxsdk/examples ./sdk_example/install_mcux_overlay.sh + EDGEAI_EV_CHARGER_MONITOR_DEMO_ROOT=... west build -d .../build_ev_charger_try3 ... | compile small-gauge pointer-length update
 - 2026-02-14 17:54:58 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash small-gauge pointer-length update to FRDM-MCXN947
 - 2026-02-14 17:54:58 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record small-gauge pointer-length update
+- 2026-02-14 17:58:30 | patch src/gauge_render.c | set large-gauge center base fill to yellow and match main center value-band clear color
+- 2026-02-14 17:58:30 | MCUX_EXAMPLES_DIR=.../mcuxsdk/examples ./sdk_example/install_mcux_overlay.sh + EDGEAI_EV_CHARGER_MONITOR_DEMO_ROOT=... west build -d .../build_ev_charger_try3 ... | compile yellow center-gauge update
+- 2026-02-14 17:58:30 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash yellow center-gauge update to FRDM-MCXN947
+- 2026-02-14 17:58:30 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record large-gauge center color update
