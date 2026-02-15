@@ -87,3 +87,9 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
   - `docs/CAPTURE_MODE.md` workflow
 - Environment check: `mcux_energy_capture` binary is not installed on this machine.
 - Capture script supports external command template via `ENERGY_CAPTURE_CMD`.
+
+## Update 2026-02-15
+- Added synthetic 5-minute EV charging dataset:
+  - `data/ev_charging_demo_5min.csv` (300 samples, 1 Hz)
+  - includes voltage/current/power/SOC/thermal/insulation/pilot/frequency/ripple metrics
+  - includes labeled anomalies: `CURRENT_SPIKE`, `VOLTAGE_SAG`, `THERMAL_RISE`, `INSULATION_DROP`, `PILOT_NOISE`

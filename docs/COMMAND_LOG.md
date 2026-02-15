@@ -37,3 +37,6 @@ Format:
 - 2026-02-14 16:24:12 | add tools/capture_energy_trace.sh and tools/trace_convert.py | implement real-data capture and conversion pipeline
 - 2026-02-14 16:24:12 | add docs/CAPTURE_MODE.md and update README/TODO/STATUS/PROJECT_STATE | document energy capture workflow and requirements
 - 2026-02-14 16:24:12 | bash -n capture_energy_trace.sh; python3 trace_convert.py --help | validate new tooling syntax
+- 2026-02-14 16:28:00 | generate data/ev_charging_demo_5min.csv (python) | create 5-minute EV telemetry demo set with anomaly labels
+- 2026-02-14 16:28:00 | validate generated CSV row count and anomaly distribution | confirm dataset integrity for AI testing
+- 2026-02-14 16:28:00 | update STATUS.md and docs/PROJECT_STATE.md | record synthetic telemetry dataset addition
