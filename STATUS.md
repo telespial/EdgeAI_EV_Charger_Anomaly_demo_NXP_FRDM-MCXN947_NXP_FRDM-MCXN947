@@ -81,3 +81,5 @@ State: initialized
 - Firmware rebuilt and reflashed after small-gauge pointer-length update.
 - Large gauge center changed to yellow base fill (backmost center layer).
 - Firmware rebuilt and reflashed after yellow-center update.
+- Large gauge center yellow changed to a very dark yellow tone.
+- Firmware rebuilt and reflashed after dark-yellow center update.

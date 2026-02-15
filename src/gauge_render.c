@@ -314,7 +314,7 @@ static void DrawStaticDashboard(const gauge_style_preset_t *style)
     DrawRing(MAIN_CX, MAIN_CY, MAIN_R + 10, 6, RGB565(20, 2, 4), RGB565(6, 2, 3));
     DrawRing(MAIN_CX, MAIN_CY, MAIN_R + 2, 10, RGB565(118, 6, 12), RGB565(26, 2, 5));
     DrawRing(MAIN_CX, MAIN_CY, MAIN_R - 10, 4, RGB565(210, 26, 32), RGB565(8, 8, 10));
-    DrawRing(MAIN_CX, MAIN_CY, MAIN_R - 14, 2, style->palette.text_primary, RGB565(255, 208, 52));
+    DrawRing(MAIN_CX, MAIN_CY, MAIN_R - 14, 2, style->palette.text_primary, RGB565(120, 95, 18));
 
     DrawRing(MID_TOP_CX, MID_TOP_CY, MID_R, 8, style->palette.text_primary, RGB565(6, 8, 10));
     DrawRing(MID_TOP_CX, MID_TOP_CY, MID_R - 8, 4, RGB565(34, 34, 36), RGB565(8, 8, 10));
@@ -339,7 +339,7 @@ static void DrawStaticDashboard(const gauge_style_preset_t *style)
 
 static void ClearDynamicValueBands(const gauge_style_preset_t *style)
 {
-    par_lcd_s035_fill_rect(MAIN_CX - 40, MAIN_CY - 10, MAIN_CX + 40, MAIN_CY + 16, RGB565(255, 208, 52));
+    par_lcd_s035_fill_rect(MAIN_CX - 40, MAIN_CY - 10, MAIN_CX + 40, MAIN_CY + 16, RGB565(120, 95, 18));
     par_lcd_s035_fill_rect(MID_TOP_CX - 24, MID_TOP_CY - 10, MID_TOP_CX + 24, MID_TOP_CY + 10, style->palette.panel_black);
     par_lcd_s035_fill_rect(MID_BOT_CX - 24, MID_BOT_CY - 10, MID_BOT_CX + 24, MID_BOT_CY + 10, style->palette.panel_black);
 }
