@@ -72,3 +72,7 @@ Format:
 - 2026-02-14 17:23:32 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile center-alignment text update
 - 2026-02-14 17:23:32 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash centered `NXP EDGEAI` label update
 - 2026-02-14 17:23:32 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record global text-centering change
+- 2026-02-14 17:26:26 | patch src/gauge_render.c | add battery level indicator above main gauge with SOC-driven fill and percentage
+- 2026-02-14 17:26:26 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile battery indicator update
+- 2026-02-14 17:26:26 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash battery indicator update to FRDM-MCXN947
+- 2026-02-14 17:26:26 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record battery-indicator feature

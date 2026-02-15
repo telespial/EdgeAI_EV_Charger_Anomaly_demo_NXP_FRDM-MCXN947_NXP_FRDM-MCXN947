@@ -41,6 +41,10 @@ enum
     MID_BOT_CX = 98,
     MID_BOT_CY = 222,
     MID_R = 46,
+    BATT_X = 206,
+    BATT_Y = 48,
+    BATT_W = 62,
+    BATT_H = 20,
     SCOPE_X = 324,
     SCOPE_Y = 24,
     SCOPE_W = 128,
@@ -212,6 +216,44 @@ static void DrawTerminalDynamic(const gauge_style_preset_t *style, const power_s
     edgeai_text5x7_draw_scaled(TERM_X + 8, TERM_Y + 134, 1, line, style->palette.text_secondary);
 }
 
+static void DrawBatteryIndicatorFrame(const gauge_style_preset_t *style)
+{
+    par_lcd_s035_fill_rect(BATT_X, BATT_Y, BATT_X + BATT_W, BATT_Y + BATT_H, RGB565(8, 10, 12));
+    par_lcd_s035_fill_rect(BATT_X + BATT_W + 1, BATT_Y + 6, BATT_X + BATT_W + 5, BATT_Y + 14, style->palette.text_primary);
+    par_lcd_s035_fill_rect(BATT_X + 1, BATT_Y + 1, BATT_X + BATT_W - 1, BATT_Y + BATT_H - 1, RGB565(22, 24, 28));
+    edgeai_text5x7_draw_scaled(BATT_X - 20, BATT_Y + 6, 1, "BAT", style->palette.text_secondary);
+}
+
+static void DrawBatteryIndicatorDynamic(const gauge_style_preset_t *style, uint8_t soc)
+{
+    int32_t inner_x0 = BATT_X + 3;
+    int32_t inner_y0 = BATT_Y + 3;
+    int32_t inner_w = BATT_W - 6;
+    int32_t inner_h = BATT_H - 6;
+    int32_t fill = (soc * inner_w) / 100;
+    char line[8];
+    uint16_t fill_color = style->palette.accent_green;
+
+    if (soc < 25u)
+    {
+        fill_color = style->palette.accent_red;
+    }
+    else if (soc < 50u)
+    {
+        fill_color = RGB565(255, 180, 24);
+    }
+
+    par_lcd_s035_fill_rect(inner_x0, inner_y0, inner_x0 + inner_w, inner_y0 + inner_h, RGB565(10, 12, 16));
+    if (fill > 0)
+    {
+        par_lcd_s035_fill_rect(inner_x0, inner_y0, inner_x0 + fill, inner_y0 + inner_h, fill_color);
+    }
+
+    par_lcd_s035_fill_rect(BATT_X + BATT_W + 8, BATT_Y + 4, BATT_X + BATT_W + 38, BATT_Y + 16, RGB565(2, 3, 5));
+    snprintf(line, sizeof(line), "%3u%%", soc);
+    edgeai_text5x7_draw_scaled(BATT_X + BATT_W + 10, BATT_Y + 6, 1, line, style->palette.text_primary);
+}
+
 static void DrawScopeDynamic(const gauge_style_preset_t *style)
 {
     int32_t px0 = SCOPE_X + 6;
@@ -291,6 +333,7 @@ static void DrawStaticDashboard(const gauge_style_preset_t *style)
     edgeai_text5x7_draw_scaled(brand_x, 286, 2, "NXP EDGEAI", RGB565(255, 208, 52));
 
     DrawLine(MAIN_CX - 24, MAIN_CY + 84, MAIN_CX + 24, MAIN_CY + 84, 2, RGB565(48, 8, 10));
+    DrawBatteryIndicatorFrame(style);
     DrawScopeFrame(style);
     DrawTerminalFrame(style);
 }
@@ -450,6 +493,7 @@ void GaugeRender_DrawFrame(const power_sample_t *sample)
     if (!gDynamicReady || gPrevSoc != sample->soc_pct)
     {
         DrawSocBar(sample->soc_pct, style);
+        DrawBatteryIndicatorDynamic(style, sample->soc_pct);
         snprintf(line, sizeof(line), "%3u%%", sample->soc_pct);
         edgeai_text5x7_draw_scaled(MAIN_CX + 26, MAIN_CY + 76, 1, line, style->palette.text_primary);
     }

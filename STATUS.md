@@ -38,3 +38,5 @@ State: initialized
 - Firmware rebuilt and reflashed after gauge relocation.
 - Bottom `NXP EDGEAI` text now centered to the overall LCD panel center.
 - Firmware rebuilt and reflashed after global-center text alignment update.
+- Added battery charging level indicator above the main gauge, driven by SOC.
+- Firmware rebuilt and reflashed after battery indicator addition.

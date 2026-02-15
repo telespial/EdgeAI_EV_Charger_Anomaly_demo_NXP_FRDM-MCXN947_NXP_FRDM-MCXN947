@@ -153,3 +153,10 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
 - Centered bottom `NXP EDGEAI` label across the full LCD panel width instead of left segment bias.
 - `src/gauge_render.c` now computes text x-position using `edgeai_text5x7_width()` and panel center constants.
 - Rebuilt and flashed successfully to FRDM-MCXN947.
+
+## Update 2026-02-15
+- Added a charging battery level indicator above the large center gauge.
+- Implemented in `src/gauge_render.c`:
+  - `DrawBatteryIndicatorFrame()` for static battery outline/label
+  - `DrawBatteryIndicatorDynamic()` to fill level from `soc_pct` and show percentage
+- Rebuilt and flashed successfully to FRDM-MCXN947.
