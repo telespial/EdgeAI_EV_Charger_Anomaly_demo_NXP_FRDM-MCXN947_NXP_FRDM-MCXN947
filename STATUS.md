@@ -72,3 +72,5 @@ State: initialized
 - Firmware rebuilt and reflashed after guide/text alignment update.
 - Added large `A` and `W` unit letters inside small gauges for amps/watts visual context.
 - Firmware rebuilt and reflashed after unit-letter overlay addition.
+- Added extreme-left green vertical bar ending at the white guide line.
+- Firmware rebuilt and reflashed after left accent bar addition.

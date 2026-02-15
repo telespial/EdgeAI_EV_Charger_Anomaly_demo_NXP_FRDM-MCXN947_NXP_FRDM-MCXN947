@@ -300,6 +300,8 @@ static void DrawStaticDashboard(const gauge_style_preset_t *style)
     par_lcd_s035_fill_rect(PANEL_X0 + 4, PANEL_Y0 + 4, PANEL_X1 - 4, PANEL_Y0 + 30, RGB565(8, 10, 13));
     edgeai_text5x7_draw_scaled(PANEL_X0 + 14, PANEL_Y0 + 14, 1, "(c)RICHARD HABERKERN", style->palette.text_secondary);
 
+    /* Left status accent bar: full vertical run up to the white guide line. */
+    par_lcd_s035_fill_rect(22, 78, 47, 288, style->palette.accent_green);
     DrawLine(22, 78, 48, 78, 1, style->palette.text_primary);
     DrawLine(48, 78, 48, 258, 1, style->palette.text_primary);
     DrawLine(48, 164, 72, 164, 1, style->palette.text_primary);

@@ -124,3 +124,7 @@ Format:
 - 2026-02-14 17:45:24 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile A/W in-gauge unit overlay update
 - 2026-02-14 17:45:24 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash A/W in-gauge unit overlay update
 - 2026-02-14 17:45:24 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record in-gauge A/W unit letter addition
+- 2026-02-14 17:47:13 | patch src/gauge_render.c | add extreme-left green full-height accent bar ending at white vertical line
+- 2026-02-14 17:47:13 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile left accent bar update
+- 2026-02-14 17:47:13 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash left accent bar update
+- 2026-02-14 17:47:13 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record left accent bar addition

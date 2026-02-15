@@ -228,3 +228,8 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
   - `A` inside upper small gauge (amps)
   - `W` inside lower small gauge (watts)
 - Rebuilt and flashed successfully to FRDM-MCXN947.
+
+## Update 2026-02-15
+- Added a full-height green accent bar at the extreme left side of the dashboard region.
+- Bar spans top-to-bottom section and terminates at the white vertical guide line.
+- Rebuilt and flashed successfully to FRDM-MCXN947.
