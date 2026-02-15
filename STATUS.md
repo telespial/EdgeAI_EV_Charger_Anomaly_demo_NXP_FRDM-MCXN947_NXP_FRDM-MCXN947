@@ -114,3 +114,7 @@ State: initialized
   - `GOLDEN_20260214_203015`
   - `GOLDEN_LOCK_20260214_203015_22b87ce`
   - `failsafe/edgeai_ev_charger_monitor_demo_cm33_core0_GOLDEN_20260214_203015.bin`
+- 2026-02-15 checkpoint: created new golden/failsafe restore point `GOLDEN_20260215_053739`.
+- Failsafe package updated to `failsafe/edgeai_ev_charger_monitor_demo_cm33_core0_GOLDEN_20260215_053739.bin` (+ sha256 + metadata).
+- Known blocker documented: touchscreen AI on/off pill remains unreliable on target hardware.
+- Normal-state status box requirement applied: `SYSTEM STABLE` should be solid green; only warning/fault should flash.

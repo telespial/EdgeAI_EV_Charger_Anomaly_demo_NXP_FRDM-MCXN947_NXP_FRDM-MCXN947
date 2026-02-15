@@ -16,10 +16,14 @@ def clamp(v, lo, hi):
 
 def target_current_a_from_soc(soc):
     if soc < 70.0:
-        return 38.5 - (soc * 0.035)
+        return 39.0 - (soc * 0.035)
     if soc < 90.0:
-        return 36.0 - ((soc - 70.0) * 1.25)
+        return 36.5 - ((soc - 70.0) * 1.25)
     return 11.0 - ((soc - 90.0) * 0.78)
+
+
+def in_window(t_s, start_s, end_s):
+    return (t_s >= start_s) and (t_s < end_s)
 
 
 def make_profile_rows(profile_name, wear_gain):
@@ -37,40 +41,77 @@ def make_profile_rows(profile_name, wear_gain):
         sim_h = real_min * SIM_HOURS_PER_REAL_MIN
         soc = clamp((sim_h / 12.0) * 100.0, 0.0, 100.0)
 
-        startup = 1.0 - math.exp(-sim_h * 2.8)
+        startup = 1.0 - math.exp(-sim_h * 3.2)
         target_current = target_current_a_from_soc(soc) * startup
-        current_noise = rng.gauss(0.0, 0.22 + (wear * 0.006))
+        current_noise = rng.gauss(0.0, 0.16 + (wear * 0.004))
         current_a = clamp(target_current + current_noise, 0.0, 40.0)
 
-        line_noise_v = 1.8 * math.sin(2.0 * math.pi * 60.0 * t_s) + rng.gauss(0.0, 0.35)
-        line_noise_v += 0.45 * math.sin(2.0 * math.pi * 180.0 * t_s)
-        charger_voltage_v = 240.0 + line_noise_v + rng.gauss(0.0, 0.10)
-        pack_voltage_v = 298.0 + (soc * 1.05) + rng.gauss(0.0, 0.45)
-        pf = 0.965 - 0.025 * (soc / 100.0)
-        charge_power_kw = (charger_voltage_v * current_a * pf) / 1000.0
+        line_noise_v = 1.5 * math.sin(2.0 * math.pi * 60.0 * t_s) + rng.gauss(0.0, 0.30)
+        line_noise_v += 0.35 * math.sin(2.0 * math.pi * 180.0 * t_s)
+        charger_voltage_v = 240.0 + line_noise_v + rng.gauss(0.0, 0.08)
 
-        pack_temp_c = 25.0 + (current_a * 0.22) + (soc * 0.06) + rng.gauss(0.0, 0.25)
-        wear += wear_gain * (current_a / 40.0) * dt * 0.03
-        wear = clamp(wear, 0.0, 100.0)
-
-        expected_conn = pack_temp_c + (current_a * 0.11)
-        connector_temp += (expected_conn - connector_temp) * 0.09
-        connector_temp += (wear * 0.012) + (abs(current_a - prev_current) * 0.08)
-        connector_temp += rng.gauss(0.0, 0.10 + wear * 0.002)
+        if profile_name in ("wear", "fault") and in_window(t_s, 390.0, 470.0):
+            # Progressive connector wear period in mid/late session.
+            wear += 0.015
 
         anomaly_label = "NONE"
-        if wear > 18.0 and rng.random() < 0.003:
-            connector_temp += rng.uniform(2.0, 5.5)
-            charge_power_kw *= rng.uniform(0.85, 0.95)
-            anomaly_label = "CONTACT_RESISTANCE_SPIKE"
-        if wear > 24.0 and rng.random() < 0.0015:
-            current_a *= rng.uniform(0.70, 0.86)
-            anomaly_label = "INTERMITTENT_CONTACT"
+
+        if profile_name == "fault":
+            if in_window(t_s, 148.0, 170.0):
+                # Short current spikes from intermittent contact.
+                if (i % 19) == 0:
+                    current_a = clamp(current_a + rng.uniform(2.5, 5.0), 0.0, 40.0)
+                    anomaly_label = "CURRENT_SPIKE"
+            if in_window(t_s, 292.0, 328.0):
+                # Sustained voltage sag.
+                charger_voltage_v -= rng.uniform(8.0, 14.0)
+                anomaly_label = "VOLTAGE_SAG"
+            if in_window(t_s, 430.0, 500.0):
+                # Power instability phase near high-wear period.
+                osc = math.sin(2.0 * math.pi * 1.8 * t_s)
+                current_a = clamp(current_a + (1.8 * osc), 0.0, 40.0)
+                charger_voltage_v += 2.8 * math.sin(2.0 * math.pi * 2.4 * t_s)
+                anomaly_label = "POWER_UNSTABLE"
+
+        pack_voltage_v = 298.0 + (soc * 1.05) + rng.gauss(0.0, 0.35)
+        pf = 0.97 - 0.03 * (soc / 100.0)
+        charge_power_kw = (charger_voltage_v * current_a * pf) / 1000.0
+
+        if profile_name == "fault" and in_window(t_s, 430.0, 500.0):
+            charge_power_kw *= (0.93 + 0.07 * math.sin(2.0 * math.pi * 2.1 * t_s))
+
+        pack_temp_c = 24.5 + (current_a * 0.20) + (soc * 0.06) + rng.gauss(0.0, 0.20)
+
+        wear += wear_gain * (current_a / 40.0) * dt * 0.025
+        wear = clamp(wear, 0.0, 100.0)
+
+        expected_conn = pack_temp_c + (current_a * 0.10)
+        connector_temp += (expected_conn - connector_temp) * 0.09
+        connector_temp += (wear * 0.010) + (abs(current_a - prev_current) * 0.06)
+        connector_temp += rng.gauss(0.0, 0.08 + wear * 0.0015)
+
+        if profile_name in ("wear", "fault"):
+            connector_temp += wear * 0.004
+
+        if profile_name == "fault" and in_window(t_s, 515.0, 700.0):
+            # Late-cycle thermal drift from degraded connector contact.
+            connector_temp += 0.03
+            if anomaly_label == "NONE":
+                anomaly_label = "CONNECTOR_DEGRADATION"
 
         connector_excess = connector_temp - expected_conn
-        anomaly_score = clamp((connector_excess * 0.12) + (wear * 0.006) + (abs(current_a - prev_current) * 0.10), 0.0, 1.0)
-        if anomaly_score > 0.55 and anomaly_label == "NONE":
+        anomaly_score = clamp((connector_excess * 0.12) + (wear * 0.010) + (abs(current_a - prev_current) * 0.08), 0.0, 1.0)
+
+        if profile_name == "normal":
+            anomaly_score *= 0.4
+        elif profile_name == "wear":
+            anomaly_score *= 0.8
+
+        if anomaly_score > 0.58 and anomaly_label == "NONE":
             anomaly_label = "WEAR_TREND_ALERT"
+
+        if profile_name == "normal":
+            anomaly_label = "NONE" if anomaly_score < 0.45 else "WEAR_TREND_ALERT"
 
         rows.append(
             {
@@ -95,7 +136,6 @@ def make_profile_rows(profile_name, wear_gain):
             }
         )
         prev_current = current_a
-
     return rows
 
 
@@ -137,19 +177,20 @@ def main():
     data_dir.mkdir(parents=True, exist_ok=True)
 
     normal_rows = make_profile_rows("normal", wear_gain=0.4)
-    wear_rows = make_profile_rows("wear", wear_gain=1.4)
-    fault_rows = make_profile_rows("fault", wear_gain=2.2)
+    wear_rows = make_profile_rows("wear", wear_gain=1.2)
+    fault_rows = make_profile_rows("fault", wear_gain=2.0)
 
     write_csv(data_dir / "ev_charge_12min_normal_20hz.csv", normal_rows)
     write_csv(data_dir / "ev_charge_12min_wear_20hz.csv", wear_rows)
     write_csv(data_dir / "ev_charge_12min_fault_20hz.csv", fault_rows)
 
-    write_firmware_replay(data_dir / "replay_trace.csv", wear_rows)
+    # Use the fault profile for firmware replay so AI demo events are always visible.
+    write_firmware_replay(data_dir / "replay_trace.csv", fault_rows)
     print("Generated:")
     print(" - data/ev_charge_12min_normal_20hz.csv")
     print(" - data/ev_charge_12min_wear_20hz.csv")
     print(" - data/ev_charge_12min_fault_20hz.csv")
-    print(" - data/replay_trace.csv (from wear profile, firmware-ready)")
+    print(" - data/replay_trace.csv (from fault profile, firmware-ready)")
 
 
 if __name__ == "__main__":

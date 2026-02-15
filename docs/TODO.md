@@ -409,3 +409,8 @@ Publish ai_status + anomaly_score to:
 right-side terminal text
 gauge accent colors
 UART log for validation
+
+## Known Blocker (2026-02-15)
+- Touchscreen AI on/off pill does not toggle reliably on target hardware.
+- Next action: add temporary UART touch debug (`x/y/int/hit`) and calibrate mapping against displayed pill bounds.
+- Keep this baseline as restore point before additional touch-driver refactor.

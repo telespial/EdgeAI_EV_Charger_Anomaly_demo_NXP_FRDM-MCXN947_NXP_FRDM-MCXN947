@@ -4,11 +4,11 @@ Last updated: 2026-02-14
 Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
 
 ## Current Baseline
-- Release baseline: initial scaffold published
-- Golden tag: none yet
-- Lock tag: none yet
-- Failsafe image: none yet
-- Lifecycle: active setup
+- Release baseline: touchscreen-debug checkpoint
+- Golden tag: `GOLDEN_20260215_053739`
+- Lock tag: `GOLDEN_LOCK_20260215_053739`
+- Failsafe image: `failsafe/edgeai_ev_charger_monitor_demo_cm33_core0_GOLDEN_20260215_053739.bin`
+- Lifecycle: active integration
 - Initial commit: `ee3119e`
 
 ## Firmware Behavior (Current)
@@ -24,6 +24,11 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
 - Implement charger-state classifier and threshold model.
 - Add display UI and warning states.
 - Validate on hardware and publish first golden restore point.
+
+## Known Blockers (2026-02-15)
+- AI touchscreen pill on/off control is still unreliable on target hardware.
+- GT911 coordinate mapping and/or touch INT event handling needs targeted debug capture and calibration.
+- This checkpoint is intentionally saved as golden/failsafe despite that blocker.
 
 ## Update 2026-02-14
 - Created standalone repository scaffold with docs, scripts, source tree, and MCUX overlay.
@@ -326,3 +331,11 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
   - `docs/START_HERE.md`
   - `docs/RESTORE_POINTS.md`
   - `docs/failsafe.md`
+
+## Update 2026-02-15
+- Documented unresolved touchscreen AI-pill issue as an active blocker.
+- Updated normal AI status behavior to render solid green `SYSTEM STABLE` and reserve flashing behavior for warning/fault states only.
+- Created new golden/failsafe restore package:
+  - `GOLDEN_20260215_053739`
+  - `GOLDEN_LOCK_20260215_053739`
+  - `failsafe/edgeai_ev_charger_monitor_demo_cm33_core0_GOLDEN_20260215_053739.bin`

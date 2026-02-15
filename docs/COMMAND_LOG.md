@@ -172,3 +172,5 @@ Format:
 - 2026-02-14 20:30:15 | `git tag -a GOLDEN_20260214_203015` + `git tag -a GOLDEN_LOCK_20260214_203015_22b87ce` | establish golden and lock restore tags
 - 2026-02-14 20:31:00 | update `START_HERE`/`RESTORE_POINTS`/`failsafe.md`/`PROJECT_STATE`/`STATUS`/`TODO` | finalize restore-point documentation and required rule updates
 - 2026-02-14 20:32:00 | update `README.md` and `docs/BUILD_FLASH.md` | align top-level docs with golden/failsafe baseline and project-local command rules
+- 2026-02-15 05:37:39 | create failsafe artifacts from build_ev_charger_try3 binary + sha256 + metadata | establish new golden/failsafe restore package with known touch blocker note
+- 2026-02-15 05:38:30 | update docs/START_HERE.md docs/PROJECT_STATE.md STATUS.md docs/RESTORE_POINTS.md docs/failsafe.md docs/TODO.md | document unresolved AI touch-button issue and set new restore baseline

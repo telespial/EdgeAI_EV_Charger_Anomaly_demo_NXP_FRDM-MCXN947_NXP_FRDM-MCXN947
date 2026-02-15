@@ -1,5 +1,24 @@
 # Restore Points
 
+## 2026-02-15 Golden Baseline
+- Golden tag: `GOLDEN_20260215_053739`
+- Lock tag: `GOLDEN_LOCK_20260215_053739`
+- Failsafe binary: `failsafe/edgeai_ev_charger_monitor_demo_cm33_core0_GOLDEN_20260215_053739.bin`
+- Failsafe checksum: `failsafe/edgeai_ev_charger_monitor_demo_cm33_core0_GOLDEN_20260215_053739.sha256`
+- Metadata: `failsafe/GOLDEN_20260215_053739_metadata.txt`
+
+### Baseline Contents
+- Current EV charger cockpit UI and telemetry loop at 20 Hz.
+- Solid green `SYSTEM STABLE` status box behavior in normal AI state.
+- Warning/fault status remains flashing-only behavior.
+- Touchscreen AI on/off pill remains a known unresolved issue at this checkpoint.
+
+### Restore Steps
+1. Use the failsafe binary directly.
+2. Flash:
+   `LinkServer flash --probe '#1' --update-mode none MCXN947:FRDM-MCXN947 load --addr 0x0 failsafe/edgeai_ev_charger_monitor_demo_cm33_core0_GOLDEN_20260215_053739.bin`
+3. Verify LCD and UART startup, then continue touch-debug work from this baseline.
+
 ## 2026-02-14 Golden Baseline
 - Golden tag: `GOLDEN_20260214_203015`
 - Lock tag: `GOLDEN_LOCK_20260214_203015_22b87ce`

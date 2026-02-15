@@ -4,6 +4,20 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+typedef enum
+{
+    AI_STATUS_NORMAL = 0,
+    AI_STATUS_WARNING = 1,
+    AI_STATUS_FAULT = 2,
+} ai_status_t;
+
+enum
+{
+    AI_FAULT_VOLTAGE_SAG = (1u << 0),
+    AI_FAULT_CURRENT_SPIKE = (1u << 1),
+    AI_FAULT_POWER_UNSTABLE = (1u << 2),
+};
+
 typedef struct
 {
     uint16_t current_mA;
@@ -13,6 +27,10 @@ typedef struct
     uint8_t temp_c;
     uint16_t anomaly_score_pct;
     uint8_t connector_wear_pct;
+    uint8_t ai_status;
+    uint8_t ai_fault_flags;
+    uint16_t thermal_risk_s;
+    uint8_t degradation_drift_pct;
     uint32_t elapsed_charge_s;
     uint32_t elapsed_charge_sim_s;
 } power_sample_t;

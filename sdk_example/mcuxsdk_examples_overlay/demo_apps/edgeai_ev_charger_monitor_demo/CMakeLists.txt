@@ -27,6 +27,16 @@ mcux_add_include(
     INCLUDES src
 )
 
+mcux_add_source(
+    BASE_PATH ${SdkRootDirPath}
+    SOURCES components/touch/gt911/fsl_gt911.c
+)
+
+mcux_add_include(
+    BASE_PATH ${SdkRootDirPath}
+    INCLUDES components/touch/gt911
+)
+
 include(${SdkRootDirPath}/${board_root}/${board}/demo_apps/edgeai_ev_charger_monitor_demo/reconfig.cmake OPTIONAL)
 
 mcux_convert_binary(BINARY ${APPLICATION_BINARY_DIR}/${MCUX_SDK_PROJECT_NAME}.bin)

@@ -22,6 +22,7 @@ void BOARD_InitPins(void)
 {
     CLOCK_EnableClock(kCLOCK_Port0);
     CLOCK_EnableClock(kCLOCK_Port1);
+    CLOCK_EnableClock(kCLOCK_Port4);
 
     // SWO
     const port_pin_config_t port0_2_pinB16_config = {
@@ -96,7 +97,34 @@ void BOARD_InitPins(void)
     };
     PORT_SetPinConfig(PORT1, 1U, &port1_1_i2c_scl);
 
-    // INT line can be added after confirming the correct GPIO/PORT mapping on this board.
+    // Arduino I2C on FC2: PIO4_0 = FC2_P0 (SDA), PIO4_1 = FC2_P1 (SCL)
+    const port_pin_config_t port4_0_i2c_sda = {
+        .pullSelect = kPORT_PullUp,
+        .pullValueSelect = kPORT_LowPullResistor,
+        .slewRate = kPORT_SlowSlewRate,
+        .passiveFilterEnable = kPORT_PassiveFilterDisable,
+        .openDrainEnable = kPORT_OpenDrainEnable,
+        .driveStrength = kPORT_LowDriveStrength,
+        .mux = kPORT_MuxAlt2, // FC2_P0
+        .inputBuffer = kPORT_InputBufferEnable,
+        .invertInput = kPORT_InputNormal,
+        .lockRegister = kPORT_UnlockRegister,
+    };
+    PORT_SetPinConfig(PORT4, 0U, &port4_0_i2c_sda);
+
+    const port_pin_config_t port4_1_i2c_scl = {
+        .pullSelect = kPORT_PullUp,
+        .pullValueSelect = kPORT_LowPullResistor,
+        .slewRate = kPORT_SlowSlewRate,
+        .passiveFilterEnable = kPORT_PassiveFilterDisable,
+        .openDrainEnable = kPORT_OpenDrainEnable,
+        .driveStrength = kPORT_LowDriveStrength,
+        .mux = kPORT_MuxAlt2, // FC2_P1
+        .inputBuffer = kPORT_InputBufferEnable,
+        .invertInput = kPORT_InputNormal,
+        .lockRegister = kPORT_UnlockRegister,
+    };
+    PORT_SetPinConfig(PORT4, 1U, &port4_1_i2c_scl);
 }
 
 /* LCD shield pins for PAR-LCD-S035 (ST7796S, FlexIO 8080).

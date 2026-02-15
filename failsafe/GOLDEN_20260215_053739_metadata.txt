@@ -1,0 +1,6 @@
+Golden: GOLDEN_20260215_053739
+Created: 2026-02-15T05:37:39Z
+Source build binary: mcuxsdk_ws/build_ev_charger_try3/edgeai_ev_charger_monitor_demo_cm33_core0.bin
+Board: FRDM-MCXN947
+Probe: MCU-LINK FRDM-MCXN947
+Known blocker: AI touchscreen pill toggle remains unreliable on target; documented in PROJECT_STATE/TODO.

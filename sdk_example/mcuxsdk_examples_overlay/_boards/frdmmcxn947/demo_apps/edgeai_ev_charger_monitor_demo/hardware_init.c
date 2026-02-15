@@ -13,6 +13,10 @@ void BOARD_InitHardware(void)
     CLOCK_SetClkDiv(kCLOCK_DivFlexcom4Clk, 1u);
     CLOCK_AttachClk(BOARD_DEBUG_UART_CLK_ATTACH);
 
+    // Arduino I2C: FLEXCOMM2 (GT911 touch on LCD shield)
+    CLOCK_SetClkDiv(kCLOCK_DivFlexcom2Clk, 1u);
+    CLOCK_AttachClk(kFRO12M_to_FLEXCOMM2);
+
     // mikroBUS I2C: FLEXCOMM3
     CLOCK_SetClkDiv(kCLOCK_DivFlexcom3Clk, 1u);
     CLOCK_AttachClk(kFRO12M_to_FLEXCOMM3);
