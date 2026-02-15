@@ -422,16 +422,16 @@ void GaugeRender_DrawFrame(const power_sample_t *sample)
         }
         if (gPrevLeftIdx != left_idx)
         {
-            DrawNeedle11(MID_TOP_CX, MID_TOP_CY, MID_R - 9, gPrevLeftIdx, style->palette.panel_black, 2);
+            DrawNeedle11(MID_TOP_CX, MID_TOP_CY, MID_R - 20, gPrevLeftIdx, style->palette.panel_black, 2);
             DrawGaugeTicks11(MID_TOP_CX, MID_TOP_CY, MID_R - 12, style->palette.text_primary, RGB565(140, 140, 145));
-            DrawNeedle11(MID_TOP_CX, MID_TOP_CY, MID_R - 9, left_idx, style->palette.text_primary, 2);
+            DrawNeedle11(MID_TOP_CX, MID_TOP_CY, MID_R - 20, left_idx, style->palette.text_primary, 2);
             gPrevLeftIdx = left_idx;
         }
         if (gPrevRightIdx != right_idx)
         {
-            DrawNeedle11(MID_BOT_CX, MID_BOT_CY, MID_R - 9, gPrevRightIdx, style->palette.panel_black, 2);
+            DrawNeedle11(MID_BOT_CX, MID_BOT_CY, MID_R - 20, gPrevRightIdx, style->palette.panel_black, 2);
             DrawGaugeTicks11(MID_BOT_CX, MID_BOT_CY, MID_R - 12, style->palette.text_primary, RGB565(140, 140, 145));
-            DrawNeedle11(MID_BOT_CX, MID_BOT_CY, MID_R - 9, right_idx, style->palette.accent_red, 2);
+            DrawNeedle11(MID_BOT_CX, MID_BOT_CY, MID_R - 20, right_idx, style->palette.accent_red, 2);
             gPrevRightIdx = right_idx;
         }
     }
@@ -439,8 +439,8 @@ void GaugeRender_DrawFrame(const power_sample_t *sample)
     {
         DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 24, main_idx, style->palette.text_primary, 3);
         DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 30, main_idx, style->palette.accent_red, 1);
-        DrawNeedle11(MID_TOP_CX, MID_TOP_CY, MID_R - 9, left_idx, style->palette.text_primary, 2);
-        DrawNeedle11(MID_BOT_CX, MID_BOT_CY, MID_R - 9, right_idx, style->palette.accent_red, 2);
+        DrawNeedle11(MID_TOP_CX, MID_TOP_CY, MID_R - 20, left_idx, style->palette.text_primary, 2);
+        DrawNeedle11(MID_BOT_CX, MID_BOT_CY, MID_R - 20, right_idx, style->palette.accent_red, 2);
         gPrevMainIdx = main_idx;
         gPrevLeftIdx = left_idx;
         gPrevRightIdx = right_idx;

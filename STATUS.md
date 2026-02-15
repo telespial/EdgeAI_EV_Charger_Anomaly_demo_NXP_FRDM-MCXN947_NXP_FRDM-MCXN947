@@ -77,3 +77,5 @@ State: initialized
 - Left guide line moved outward to increase gap from gauges.
 - `CURRENT` text aligned to match short-guide/label relationship used by `POWER`.
 - Firmware rebuilt and reflashed after spacing/alignment refinement.
+- Small-gauge pointers shortened to match the reduced pointer style used on the center gauge.
+- Firmware rebuilt and reflashed after small-gauge pointer-length update.

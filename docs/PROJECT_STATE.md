@@ -239,3 +239,8 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
   - moved left guide structure farther left for more spacing from gauges
   - aligned `CURRENT` text offset with its short horizontal guide and with `POWER` label pattern
 - Rebuilt and flashed successfully to FRDM-MCXN947.
+
+## Update 2026-02-14
+- Shortened both small-gauge pointers to match the reduced needle style used on the main gauge.
+- Updated `src/gauge_render.c` small-gauge needle radii from `MID_R - 16` to `MID_R - 20` in erase/redraw paths for consistent rendering.
+- Rebuilt and flashed successfully to FRDM-MCXN947 (LinkServer probe `#1`).

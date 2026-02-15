@@ -132,3 +132,7 @@ Format:
 - 2026-02-14 17:49:50 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile left-guide/current alignment update
 - 2026-02-14 17:49:50 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash left-guide/current alignment update
 - 2026-02-14 17:49:50 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record left spacing/current alignment update
+- 2026-02-14 17:54:58 | patch src/gauge_render.c | shorten both small-gauge pointers (needle radius `MID_R - 20`) in all draw/erase paths
+- 2026-02-14 17:54:58 | MCUX_EXAMPLES_DIR=.../mcuxsdk/examples ./sdk_example/install_mcux_overlay.sh + EDGEAI_EV_CHARGER_MONITOR_DEMO_ROOT=... west build -d .../build_ev_charger_try3 ... | compile small-gauge pointer-length update
+- 2026-02-14 17:54:58 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash small-gauge pointer-length update to FRDM-MCXN947
+- 2026-02-14 17:54:58 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record small-gauge pointer-length update
