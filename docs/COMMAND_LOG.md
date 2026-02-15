@@ -174,3 +174,5 @@ Format:
 - 2026-02-14 20:32:00 | update `README.md` and `docs/BUILD_FLASH.md` | align top-level docs with golden/failsafe baseline and project-local command rules
 - 2026-02-15 05:37:39 | create failsafe artifacts from build_ev_charger_try3 binary + sha256 + metadata | establish new golden/failsafe restore package with known touch blocker note
 - 2026-02-15 05:38:30 | update docs/START_HERE.md docs/PROJECT_STATE.md STATUS.md docs/RESTORE_POINTS.md docs/failsafe.md docs/TODO.md | document unresolved AI touch-button issue and set new restore baseline
+- 2026-02-15 05:41:05 | git add -A && git commit -m "Golden restore point 20260215_053739; document touch-button blocker" | checkpoint current firmware+docs state as new golden/failsafe baseline
+- 2026-02-15 05:41:22 | git tag -a GOLDEN_20260215_053739 && git tag -a GOLDEN_LOCK_20260215_053739 | create required golden and lock restore tags for this baseline
