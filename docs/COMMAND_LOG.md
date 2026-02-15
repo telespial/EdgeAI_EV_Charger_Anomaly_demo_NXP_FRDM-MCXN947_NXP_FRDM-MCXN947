@@ -43,3 +43,8 @@ Format:
 - 2026-02-14 16:31:58 | overwrite data/ev_charging_demo_5min.csv with 20Hz synthetic telemetry | increase sampling from 1Hz to 20Hz for 5-minute dataset
 - 2026-02-14 16:31:58 | validate CSV row count/time span/anomaly distribution | confirm 6000-row dataset integrity
 - 2026-02-14 16:31:58 | update STATUS.md and docs/PROJECT_STATE.md | record dataset sampling-rate change
+- 2026-02-14 16:39:21 | patch src/gauge_render.c and src/text5x7.c | redesign dashboard to cockpit cluster and add scope panel with yellow 20HZ trace
+- 2026-02-14 16:39:21 | MCUX_EXAMPLES_DIR=... ./sdk_example/install_mcux_overlay.sh | sync local overlay before rebuild
+- 2026-02-14 16:39:21 | source tools/mcux_env.sh && west build ... build_ev_charger_try3 | compile updated dashboard firmware
+- 2026-02-14 16:39:21 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash cockpit-dashboard update to FRDM-MCXN947
+- 2026-02-14 16:39:21 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record UI redesign/build/flash changes

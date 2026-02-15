@@ -20,3 +20,6 @@ State: initialized
 - Added real-data capture pipeline scripts for MCUX energy tooling and replay conversion.
 - Added synthetic 5-minute EV charging telemetry dataset with labeled anomaly windows.
 - Synthetic EV dataset updated to 20 Hz sampling (6000 rows over 5 minutes).
+- Dashboard UI upgraded to a professional cockpit-style cluster layout (center + dual side gauges).
+- Added oscilloscope panel (upper-right) with white/red timelines and yellow 20 Hz signal trace labeling.
+- Firmware rebuilt and reflashed after style update.

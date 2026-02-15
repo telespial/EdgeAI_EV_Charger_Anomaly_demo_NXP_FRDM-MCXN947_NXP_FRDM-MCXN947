@@ -98,3 +98,15 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
 - Overwrote `data/ev_charging_demo_5min.csv` with 20 Hz telemetry:
   - 6000 rows over 300 seconds (`timestamp_s` from `0.000` to `299.950`)
   - same metrics and anomaly labels retained
+
+## Update 2026-02-15
+- Redesigned the LCD dashboard to a more professional cockpit cluster style:
+  - large central analog-style gauge
+  - left/right secondary gauges with compact labels
+  - darker multi-layer bezel treatment to match reference aesthetic
+- Added upper-right scope panel in `src/gauge_render.c` with:
+  - white timeline trace
+  - red timeline trace
+  - yellow signal trace and `20HZ TRACE` label
+- Added missing uppercase `Z` glyph in `src/text5x7.c` for dashboard labeling.
+- Rebuilt and flashed `build_ev_charger_try3`; flash completed successfully on probe `#1`.
