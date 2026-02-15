@@ -254,7 +254,7 @@ static void DrawStaticDashboard(const gauge_style_preset_t *style)
     par_lcd_s035_fill(RGB565(0, 0, 0));
     par_lcd_s035_fill_rect(PANEL_X0, PANEL_Y0, PANEL_X1, PANEL_Y1, RGB565(2, 3, 5));
     par_lcd_s035_fill_rect(PANEL_X0 + 4, PANEL_Y0 + 4, PANEL_X1 - 4, PANEL_Y0 + 30, RGB565(8, 10, 13));
-    edgeai_text5x7_draw_scaled(PANEL_X0 + 14, PANEL_Y0 + 12, 2, "EDGE AI CLUSTER", style->palette.text_primary);
+    edgeai_text5x7_draw_scaled(PANEL_X0 + 14, PANEL_Y0 + 14, 1, "(c)RICHARD HABERKERN", style->palette.text_secondary);
 
     DrawLine(22, 78, 56, 78, 1, style->palette.text_primary);
     DrawLine(56, 78, 56, 258, 1, style->palette.text_primary);
@@ -281,12 +281,11 @@ static void DrawStaticDashboard(const gauge_style_preset_t *style)
     DrawLine(MAIN_CX + 58, MAIN_CY - 35, MAIN_CX + 82, MAIN_CY - 3, 2, style->palette.accent_red);
     DrawLine(MAIN_CX + 60, MAIN_CY - 24, MAIN_CX + 84, MAIN_CY + 8, 2, style->palette.accent_red);
 
-    edgeai_text5x7_draw_scaled(MAIN_CX - 66, MAIN_CY + 14, 5, "EV", style->palette.text_primary);
-    edgeai_text5x7_draw_scaled(MAIN_CX + 7, MAIN_CY + 14, 5, "AI", style->palette.text_primary);
     edgeai_text5x7_draw_scaled(MAIN_CX - 22, MAIN_CY + 60, 1, "SPEED", style->palette.text_secondary);
     edgeai_text5x7_draw_scaled(MID_TOP_CX - 18, MID_TOP_CY + 34, 1, "CURRENT", style->palette.text_primary);
     edgeai_text5x7_draw_scaled(MID_BOT_CX - 14, MID_BOT_CY + 34, 1, "POWER", style->palette.text_primary);
     edgeai_text5x7_draw_scaled(MAIN_CX - 16, MAIN_CY + 74, 1, "SOC", style->palette.text_secondary);
+    edgeai_text5x7_draw_scaled(154, 286, 2, "NXP EDGEAI", RGB565(255, 208, 52));
 
     DrawLine(MAIN_CX - 24, MAIN_CY + 84, MAIN_CX + 24, MAIN_CY + 84, 2, RGB565(48, 8, 10));
     DrawScopeFrame(style);

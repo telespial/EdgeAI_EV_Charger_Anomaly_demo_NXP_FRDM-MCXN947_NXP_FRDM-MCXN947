@@ -134,3 +134,10 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
   - updated black/red frame accents for scope and terminal panes
 - Updated base palette in `src/gauge_style.c` for red/black cluster color balance.
 - Rebuilt and flashed successfully to FRDM-MCXN947 via LinkServer probe `#1`.
+
+## Update 2026-02-15
+- Updated dashboard text branding/layout in `src/gauge_render.c`:
+  - removed large center `EV AI` text
+  - added large yellow `NXP EDGEAI` text at bottom
+  - replaced top header text with smaller `(c)RICHARD HABERKERN`
+- Rebuilt and flashed successfully to FRDM-MCXN947.

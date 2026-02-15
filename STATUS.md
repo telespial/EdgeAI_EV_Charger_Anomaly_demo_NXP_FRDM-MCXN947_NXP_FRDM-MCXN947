@@ -32,3 +32,5 @@ State: initialized
 - Gauge visuals rethemed to red/black performance-cluster style with central red dial and white/red scale accents.
 - Scope/terminal borders now align with red-accent cockpit palette.
 - Firmware rebuilt and reflashed after gauge style update.
+- Dashboard text updated: bottom large yellow `NXP EDGEAI`, center `EV AI` removed, top header changed to `(c)RICHARD HABERKERN`.
+- Firmware rebuilt and reflashed after text update.

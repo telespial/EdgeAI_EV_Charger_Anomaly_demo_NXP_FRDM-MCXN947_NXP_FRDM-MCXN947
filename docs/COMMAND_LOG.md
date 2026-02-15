@@ -60,3 +60,7 @@ Format:
 - 2026-02-14 17:15:35 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile red/black gauge style update
 - 2026-02-14 17:15:35 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash red/black gauge style update to FRDM-MCXN947
 - 2026-02-14 17:15:35 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record gauge style and deployment changes
+- 2026-02-14 17:18:56 | patch src/gauge_render.c | remove `EV AI`, add bottom yellow `NXP EDGEAI`, change header to `(c)RICHARD HABERKERN`
+- 2026-02-14 17:18:56 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile dashboard text update
+- 2026-02-14 17:18:56 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash text update to FRDM-MCXN947
+- 2026-02-14 17:18:56 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record text branding changes
