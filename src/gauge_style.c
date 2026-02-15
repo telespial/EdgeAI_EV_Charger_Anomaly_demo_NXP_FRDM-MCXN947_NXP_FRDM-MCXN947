@@ -7,15 +7,15 @@
 static const gauge_style_preset_t kCockpitPreset = {
     .palette =
         {
-            .bg_black = RGB565(8, 10, 14),
-            .panel_black = RGB565(14, 16, 20),
-            .bezel_dark = RGB565(28, 30, 34),
-            .bezel_light = RGB565(86, 88, 94),
+            .bg_black = RGB565(0, 0, 0),
+            .panel_black = RGB565(8, 10, 12),
+            .bezel_dark = RGB565(22, 3, 8),
+            .bezel_light = RGB565(224, 226, 230),
             .text_primary = RGB565(236, 238, 242),
-            .text_secondary = RGB565(148, 152, 160),
-            .needle_amber = RGB565(255, 160, 24),
-            .accent_red = RGB565(214, 30, 44),
-            .accent_green = RGB565(42, 182, 112),
+            .text_secondary = RGB565(164, 168, 176),
+            .needle_amber = RGB565(255, 208, 52),
+            .accent_red = RGB565(224, 24, 38),
+            .accent_green = RGB565(44, 198, 94),
             .accent_blue = RGB565(44, 112, 230),
         },
     .speed_gauge =

@@ -126,3 +126,11 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
   - bottom scope title text now renders in yellow as `NXP EDGE AI`
 - Added `X` glyph support in `src/text5x7.c` for scope title rendering.
 - Rebuilt and flashed successfully to FRDM-MCXN947 (LinkServer probe `#1`).
+
+## Update 2026-02-15
+- Re-themed gauge cluster to match the provided red/black performance cockpit direction:
+  - dominant centered red main dial with white scale and redline accents
+  - white-trimmed side gauge pods with black interiors
+  - updated black/red frame accents for scope and terminal panes
+- Updated base palette in `src/gauge_style.c` for red/black cluster color balance.
+- Rebuilt and flashed successfully to FRDM-MCXN947 via LinkServer probe `#1`.

@@ -33,20 +33,14 @@ enum
     PANEL_Y0 = 14,
     PANEL_X1 = 462,
     PANEL_Y1 = 306,
-    Q1_X0 = 22,
-    Q1_X1 = 168,
-    Q2_X0 = 170,
-    Q2_X1 = 316,
-    Q3_X0 = 318,
-    Q3_X1 = 458,
-    MAIN_CX = 95,
-    MAIN_CY = 166,
-    MAIN_R = 64,
-    MID_TOP_CX = 243,
-    MID_TOP_CY = 112,
-    MID_BOT_CX = 243,
-    MID_BOT_CY = 222,
-    MID_R = 40,
+    MAIN_CX = 236,
+    MAIN_CY = 170,
+    MAIN_R = 84,
+    MID_TOP_CX = 98,
+    MID_TOP_CY = 170,
+    MID_BOT_CX = 374,
+    MID_BOT_CY = 170,
+    MID_R = 46,
     SCOPE_X = 324,
     SCOPE_Y = 24,
     SCOPE_W = 128,
@@ -174,18 +168,18 @@ static void DrawNeedle13(int32_t cx, int32_t cy, int32_t radius, int32_t idx, ui
 
 static void DrawScopeFrame(const gauge_style_preset_t *style)
 {
-    par_lcd_s035_fill_rect(SCOPE_X, SCOPE_Y, SCOPE_X + SCOPE_W, SCOPE_Y + SCOPE_H, style->palette.bezel_dark);
+    par_lcd_s035_fill_rect(SCOPE_X, SCOPE_Y, SCOPE_X + SCOPE_W, SCOPE_Y + SCOPE_H, RGB565(18, 3, 7));
     par_lcd_s035_fill_rect(SCOPE_X + 2, SCOPE_Y + 2, SCOPE_X + SCOPE_W - 2, SCOPE_Y + SCOPE_H - 2, RGB565(7, 10, 12));
-    edgeai_text5x7_draw_scaled(SCOPE_X + 8, SCOPE_Y + 6, 1, "20HZ TRACE", style->palette.needle_amber);
-    edgeai_text5x7_draw_scaled(SCOPE_X + 34, SCOPE_Y + SCOPE_H - 11, 1, "NXP EDGE AI", style->palette.needle_amber);
+    edgeai_text5x7_draw_scaled(SCOPE_X + 8, SCOPE_Y + 6, 1, "20HZ TRACE", RGB565(255, 208, 52));
+    edgeai_text5x7_draw_scaled(SCOPE_X + 34, SCOPE_Y + SCOPE_H - 11, 1, "NXP EDGE AI", RGB565(255, 208, 52));
 }
 
 static void DrawTerminalFrame(const gauge_style_preset_t *style)
 {
-    par_lcd_s035_fill_rect(TERM_X, TERM_Y, TERM_X + TERM_W, TERM_Y + TERM_H, style->palette.bezel_dark);
+    par_lcd_s035_fill_rect(TERM_X, TERM_Y, TERM_X + TERM_W, TERM_Y + TERM_H, RGB565(18, 3, 7));
     par_lcd_s035_fill_rect(TERM_X + 2, TERM_Y + 2, TERM_X + TERM_W - 2, TERM_Y + TERM_H - 2, RGB565(6, 9, 12));
     edgeai_text5x7_draw_scaled(TERM_X + 6, TERM_Y + 6, 1, "STATUS", style->palette.text_primary);
-    DrawLine(TERM_X + 6, TERM_Y + 16, TERM_X + TERM_W - 6, TERM_Y + 16, 1, RGB565(45, 55, 62));
+    DrawLine(TERM_X + 6, TERM_Y + 16, TERM_X + TERM_W - 6, TERM_Y + 16, 1, RGB565(110, 20, 30));
 }
 
 static void DrawTerminalDynamic(const gauge_style_preset_t *style, const power_sample_t *sample, uint16_t cpu_pct)
@@ -257,31 +251,44 @@ static void DrawScopeDynamic(const gauge_style_preset_t *style)
 
 static void DrawStaticDashboard(const gauge_style_preset_t *style)
 {
-    par_lcd_s035_fill(style->palette.bg_black);
-    par_lcd_s035_fill_rect(PANEL_X0, PANEL_Y0, PANEL_X1, PANEL_Y1, style->palette.panel_black);
-    par_lcd_s035_fill_rect(PANEL_X0 + 4, PANEL_Y0 + 4, PANEL_X1 - 4, PANEL_Y0 + 34, RGB565(18, 20, 24));
-    edgeai_text5x7_draw_scaled(PANEL_X0 + 14, PANEL_Y0 + 14, 2, "EV CHARGE MONITOR", style->palette.text_primary);
+    par_lcd_s035_fill(RGB565(0, 0, 0));
+    par_lcd_s035_fill_rect(PANEL_X0, PANEL_Y0, PANEL_X1, PANEL_Y1, RGB565(2, 3, 5));
+    par_lcd_s035_fill_rect(PANEL_X0 + 4, PANEL_Y0 + 4, PANEL_X1 - 4, PANEL_Y0 + 30, RGB565(8, 10, 13));
+    edgeai_text5x7_draw_scaled(PANEL_X0 + 14, PANEL_Y0 + 12, 2, "EDGE AI CLUSTER", style->palette.text_primary);
 
-    DrawLine(Q1_X1, PANEL_Y0 + 40, Q1_X1, PANEL_Y1 - 4, 1, RGB565(36, 40, 46));
-    DrawLine(Q2_X1, PANEL_Y0 + 40, Q2_X1, PANEL_Y1 - 4, 1, RGB565(36, 40, 46));
+    DrawLine(22, 78, 56, 78, 1, style->palette.text_primary);
+    DrawLine(56, 78, 56, 258, 1, style->palette.text_primary);
+    DrawLine(56, 258, 132, 258, 1, style->palette.text_primary);
+    DrawLine(448, 78, 414, 78, 1, style->palette.text_primary);
+    DrawLine(414, 78, 414, 258, 1, style->palette.text_primary);
+    DrawLine(414, 258, 338, 258, 1, style->palette.text_primary);
 
-    DrawRing(MAIN_CX, MAIN_CY, MAIN_R, 10, style->palette.bezel_light, RGB565(10, 12, 16));
-    DrawRing(MAIN_CX, MAIN_CY, MAIN_R - 10, 4, style->palette.bezel_dark, style->palette.panel_black);
-    DrawRing(MID_TOP_CX, MID_TOP_CY, MID_R, 7, style->palette.bezel_dark, RGB565(10, 12, 16));
-    DrawRing(MID_BOT_CX, MID_BOT_CY, MID_R, 7, style->palette.bezel_dark, RGB565(10, 12, 16));
+    DrawRing(MAIN_CX, MAIN_CY, MAIN_R + 10, 6, RGB565(20, 2, 4), RGB565(6, 2, 3));
+    DrawRing(MAIN_CX, MAIN_CY, MAIN_R + 2, 10, RGB565(118, 6, 12), RGB565(26, 2, 5));
+    DrawRing(MAIN_CX, MAIN_CY, MAIN_R - 10, 4, RGB565(210, 26, 32), RGB565(8, 8, 10));
+    DrawRing(MAIN_CX, MAIN_CY, MAIN_R - 14, 2, style->palette.text_primary, RGB565(9, 11, 14));
 
-    DrawGaugeTicks13(MAIN_CX, MAIN_CY, MAIN_R - 6, style->palette.text_secondary, RGB565(90, 96, 104));
-    DrawGaugeTicks11(MID_TOP_CX, MID_TOP_CY, MID_R - 4, style->palette.text_secondary, RGB565(96, 100, 108));
-    DrawGaugeTicks11(MID_BOT_CX, MID_BOT_CY, MID_R - 4, style->palette.text_secondary, RGB565(96, 100, 108));
+    DrawRing(MID_TOP_CX, MID_TOP_CY, MID_R, 8, style->palette.text_primary, RGB565(6, 8, 10));
+    DrawRing(MID_TOP_CX, MID_TOP_CY, MID_R - 8, 4, RGB565(34, 34, 36), RGB565(8, 8, 10));
+    DrawRing(MID_BOT_CX, MID_BOT_CY, MID_R, 8, style->palette.text_primary, RGB565(6, 8, 10));
+    DrawRing(MID_BOT_CX, MID_BOT_CY, MID_R - 8, 4, RGB565(34, 34, 36), RGB565(8, 8, 10));
 
-    edgeai_text5x7_draw_scaled(MAIN_CX - 20, MAIN_CY + 26, 2, "mV", style->palette.text_secondary);
-    edgeai_text5x7_draw_scaled(MID_TOP_CX - 18, MID_TOP_CY + 30, 1, "CURRENT", style->palette.text_secondary);
-    edgeai_text5x7_draw_scaled(MID_TOP_CX - 8, MID_TOP_CY + 42, 1, "mA", style->palette.text_secondary);
-    edgeai_text5x7_draw_scaled(MID_BOT_CX - 14, MID_BOT_CY + 30, 1, "POWER", style->palette.text_secondary);
-    edgeai_text5x7_draw_scaled(MID_BOT_CX - 8, MID_BOT_CY + 42, 1, "mW", style->palette.text_secondary);
-    edgeai_text5x7_draw_scaled(MAIN_CX - 16, MAIN_CY + 58, 1, "SOC", style->palette.text_secondary);
+    DrawGaugeTicks13(MAIN_CX, MAIN_CY, MAIN_R - 6, style->palette.text_primary, RGB565(170, 170, 176));
+    DrawGaugeTicks11(MID_TOP_CX, MID_TOP_CY, MID_R - 4, style->palette.text_primary, RGB565(140, 140, 145));
+    DrawGaugeTicks11(MID_BOT_CX, MID_BOT_CY, MID_R - 4, style->palette.text_primary, RGB565(140, 140, 145));
 
-    DrawLine(MAIN_CX - 24, MAIN_CY + 68, MAIN_CX + 24, MAIN_CY + 68, 2, RGB565(40, 45, 50));
+    DrawLine(MAIN_CX + 56, MAIN_CY - 46, MAIN_CX + 78, MAIN_CY - 14, 2, style->palette.accent_red);
+    DrawLine(MAIN_CX + 58, MAIN_CY - 35, MAIN_CX + 82, MAIN_CY - 3, 2, style->palette.accent_red);
+    DrawLine(MAIN_CX + 60, MAIN_CY - 24, MAIN_CX + 84, MAIN_CY + 8, 2, style->palette.accent_red);
+
+    edgeai_text5x7_draw_scaled(MAIN_CX - 66, MAIN_CY + 14, 5, "EV", style->palette.text_primary);
+    edgeai_text5x7_draw_scaled(MAIN_CX + 7, MAIN_CY + 14, 5, "AI", style->palette.text_primary);
+    edgeai_text5x7_draw_scaled(MAIN_CX - 22, MAIN_CY + 60, 1, "SPEED", style->palette.text_secondary);
+    edgeai_text5x7_draw_scaled(MID_TOP_CX - 18, MID_TOP_CY + 34, 1, "CURRENT", style->palette.text_primary);
+    edgeai_text5x7_draw_scaled(MID_BOT_CX - 14, MID_BOT_CY + 34, 1, "POWER", style->palette.text_primary);
+    edgeai_text5x7_draw_scaled(MAIN_CX - 16, MAIN_CY + 74, 1, "SOC", style->palette.text_secondary);
+
+    DrawLine(MAIN_CX - 24, MAIN_CY + 84, MAIN_CX + 24, MAIN_CY + 84, 2, RGB565(48, 8, 10));
     DrawScopeFrame(style);
     DrawTerminalFrame(style);
 }
@@ -289,7 +296,7 @@ static void DrawStaticDashboard(const gauge_style_preset_t *style)
 static void DrawSocBar(uint8_t soc, const gauge_style_preset_t *style)
 {
     int32_t x0 = MAIN_CX - 24;
-    int32_t y0 = MAIN_CY + 64;
+    int32_t y0 = MAIN_CY + 80;
     int32_t w = 48;
     int32_t fill = (soc * w) / 100;
 
@@ -306,7 +313,7 @@ static void ClearDynamicValueBands(const gauge_style_preset_t *style)
     par_lcd_s035_fill_rect(MAIN_CX - 40, MAIN_CY - 10, MAIN_CX + 40, MAIN_CY + 16, style->palette.panel_black);
     par_lcd_s035_fill_rect(MID_TOP_CX - 24, MID_TOP_CY - 10, MID_TOP_CX + 24, MID_TOP_CY + 10, style->palette.panel_black);
     par_lcd_s035_fill_rect(MID_BOT_CX - 24, MID_BOT_CY - 10, MID_BOT_CX + 24, MID_BOT_CY + 10, style->palette.panel_black);
-    par_lcd_s035_fill_rect(MAIN_CX + 26, MAIN_CY + 58, MAIN_CX + 64, MAIN_CY + 72, style->palette.panel_black);
+    par_lcd_s035_fill_rect(MAIN_CX + 26, MAIN_CY + 74, MAIN_CX + 64, MAIN_CY + 88, style->palette.panel_black);
 }
 
 bool GaugeRender_Init(void)
@@ -380,28 +387,30 @@ void GaugeRender_DrawFrame(const power_sample_t *sample)
         if (gPrevMainIdx != main_idx)
         {
             DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 10, gPrevMainIdx, style->palette.panel_black, 3);
-            DrawGaugeTicks13(MAIN_CX, MAIN_CY, MAIN_R - 6, style->palette.text_secondary, RGB565(90, 96, 104));
-            DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 10, main_idx, style->palette.needle_amber, 3);
+            DrawGaugeTicks13(MAIN_CX, MAIN_CY, MAIN_R - 6, style->palette.text_primary, RGB565(170, 170, 176));
+            DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 10, main_idx, style->palette.text_primary, 3);
+            DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 16, main_idx, style->palette.accent_red, 1);
             gPrevMainIdx = main_idx;
         }
         if (gPrevLeftIdx != left_idx)
         {
             DrawNeedle11(MID_TOP_CX, MID_TOP_CY, MID_R - 9, gPrevLeftIdx, style->palette.panel_black, 2);
-            DrawGaugeTicks11(MID_TOP_CX, MID_TOP_CY, MID_R - 4, style->palette.text_secondary, RGB565(96, 100, 108));
+            DrawGaugeTicks11(MID_TOP_CX, MID_TOP_CY, MID_R - 4, style->palette.text_primary, RGB565(140, 140, 145));
             DrawNeedle11(MID_TOP_CX, MID_TOP_CY, MID_R - 9, left_idx, style->palette.text_primary, 2);
             gPrevLeftIdx = left_idx;
         }
         if (gPrevRightIdx != right_idx)
         {
             DrawNeedle11(MID_BOT_CX, MID_BOT_CY, MID_R - 9, gPrevRightIdx, style->palette.panel_black, 2);
-            DrawGaugeTicks11(MID_BOT_CX, MID_BOT_CY, MID_R - 4, style->palette.text_secondary, RGB565(96, 100, 108));
+            DrawGaugeTicks11(MID_BOT_CX, MID_BOT_CY, MID_R - 4, style->palette.text_primary, RGB565(140, 140, 145));
             DrawNeedle11(MID_BOT_CX, MID_BOT_CY, MID_R - 9, right_idx, style->palette.accent_red, 2);
             gPrevRightIdx = right_idx;
         }
     }
     else
     {
-        DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 10, main_idx, style->palette.needle_amber, 3);
+        DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 10, main_idx, style->palette.text_primary, 3);
+        DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 16, main_idx, style->palette.accent_red, 1);
         DrawNeedle11(MID_TOP_CX, MID_TOP_CY, MID_R - 9, left_idx, style->palette.text_primary, 2);
         DrawNeedle11(MID_BOT_CX, MID_BOT_CY, MID_R - 9, right_idx, style->palette.accent_red, 2);
         gPrevMainIdx = main_idx;
@@ -440,7 +449,7 @@ void GaugeRender_DrawFrame(const power_sample_t *sample)
     {
         DrawSocBar(sample->soc_pct, style);
         snprintf(line, sizeof(line), "%3u%%", sample->soc_pct);
-        edgeai_text5x7_draw_scaled(MAIN_CX + 26, MAIN_CY + 60, 1, line, style->palette.accent_green);
+        edgeai_text5x7_draw_scaled(MAIN_CX + 26, MAIN_CY + 76, 1, line, style->palette.text_primary);
     }
 
     if (!gDynamicReady || gPrevCurrent != sample->current_mA || gPrevPower != sample->power_mW ||

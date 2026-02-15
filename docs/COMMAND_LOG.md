@@ -56,3 +56,7 @@ Format:
 - 2026-02-14 17:07:43 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile scope color/title update
 - 2026-02-14 17:07:43 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash scope color/title update to FRDM-MCXN947
 - 2026-02-14 17:07:43 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record scope styling update
+- 2026-02-14 17:15:35 | patch src/gauge_render.c and src/gauge_style.c | retheme gauges/colors toward red-black performance cockpit reference
+- 2026-02-14 17:15:35 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile red/black gauge style update
+- 2026-02-14 17:15:35 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash red/black gauge style update to FRDM-MCXN947
+- 2026-02-14 17:15:35 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record gauge style and deployment changes

@@ -29,3 +29,6 @@ State: initialized
 - Scope colors updated to red/white/green with yellow bottom title `NXP EDGE AI`.
 - Added font glyph `X` for dashboard title rendering.
 - Firmware rebuilt and reflashed after scope style update.
+- Gauge visuals rethemed to red/black performance-cluster style with central red dial and white/red scale accents.
+- Scope/terminal borders now align with red-accent cockpit palette.
+- Firmware rebuilt and reflashed after gauge style update.
