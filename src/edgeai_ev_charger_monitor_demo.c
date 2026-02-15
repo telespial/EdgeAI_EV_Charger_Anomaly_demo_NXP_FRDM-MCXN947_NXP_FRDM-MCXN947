@@ -1,9 +1,8 @@
 #include <stdbool.h>
 
+#include "app.h"
 #include "board.h"
 #include "fsl_debug_console.h"
-#include "pin_mux.h"
-#include "clock_config.h"
 #include "gauge_style.h"
 #include "gauge_render.h"
 #include "power_data_source.h"
@@ -14,9 +13,7 @@ int main(void)
     bool lcd_ok;
     const power_sample_t *s;
 
-    BOARD_InitBootPins();
-    BOARD_InitBootClocks();
-    BOARD_InitDebugConsole();
+    BOARD_InitHardware();
 
     PRINTF("EV Charger Monitor demo baseline booted\r\n");
     GaugeStyle_LogPreset();

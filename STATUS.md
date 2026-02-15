@@ -14,3 +14,4 @@ State: initialized
 - Added first on-screen cockpit dashboard render (rings, needles, digital readouts).
 - Build+flash validated using shared workspace path override.
 - Render loop cadence bug fixed and reflashed (blank-screen mitigation).
+- LCD init path fixed (`BOARD_InitHardware`) and UART now reports `Gauge render: ready`.

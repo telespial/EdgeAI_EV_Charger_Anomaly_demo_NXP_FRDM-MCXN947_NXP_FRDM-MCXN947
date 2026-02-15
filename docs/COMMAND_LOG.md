@@ -23,3 +23,7 @@ Format:
 - 2026-02-14 16:11:49 | patch src/edgeai_ev_charger_monitor_demo.c render cadence | fix blank-screen issue by drawing every loop
 - 2026-02-14 16:11:49 | rebuild in shared workspace build_ev_charger_try3 | verify compile after render-loop fix
 - 2026-02-14 16:11:49 | flash build_ev_charger_try3 via LinkServer probe #1 | deploy blank-screen fix firmware
+- 2026-02-14 16:15:13 | capture UART during flash cycle | identify blank-screen root cause (LCD init failed status 4)
+- 2026-02-14 16:15:13 | patch main init to BOARD_InitHardware + include app.h; fix gauge_style newlines | restore LCD initialization path and clean boot logs
+- 2026-02-14 16:15:13 | rebuild + flash build_ev_charger_try3 in shared workspace | deploy LCD init fix
+- 2026-02-14 16:15:13 | timeout cat /dev/ttyACM0 | verify 'Gauge render: ready' after reboot

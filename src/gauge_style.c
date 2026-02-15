@@ -59,14 +59,14 @@ void GaugeStyle_LogPreset(void)
 {
     const gauge_style_preset_t *preset = GaugeStyle_GetCockpitPreset();
 
-    PRINTF("Gauge style: cockpit_dark_v1\\r\\n");
-    PRINTF("  Palette RGB565 bg=%u panel=%u bezel=%u/%u needle=%u\\r\\n",
+    PRINTF("Gauge style: cockpit_dark_v1\r\n");
+    PRINTF("  Palette RGB565 bg=%u panel=%u bezel=%u/%u needle=%u\r\n",
            preset->palette.bg_black,
            preset->palette.panel_black,
            preset->palette.bezel_dark,
            preset->palette.bezel_light,
            preset->palette.needle_amber);
-    PRINTF("  Speed gauge center=(%u,%u) r=%u\\r\\n",
+    PRINTF("  Speed gauge center=(%u,%u) r=%u\r\n",
            preset->speed_gauge.center_x,
            preset->speed_gauge.center_y,
            preset->speed_gauge.radius);

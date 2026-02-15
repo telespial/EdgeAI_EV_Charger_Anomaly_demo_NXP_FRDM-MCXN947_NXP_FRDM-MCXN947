@@ -53,3 +53,13 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
 - Fixed a render cadence bug that could appear as a blank screen.
 - `src/edgeai_ev_charger_monitor_demo.c` now draws the gauge frame every loop iteration.
 - Rebuilt and reflashed `build_ev_charger_try3` after the fix.
+
+## Update 2026-02-15
+- Fixed LCD bring-up initialization path:
+  - switched to `BOARD_InitHardware()` in `src/edgeai_ev_charger_monitor_demo.c`
+  - included `app.h` for board init declaration
+- Fixed UART formatting in `src/gauge_style.c` (`\r\n` handling).
+- Rebuilt and reflashed `build_ev_charger_try3`.
+- Verified UART boot markers include:
+  - `Gauge render: ready`
+  - `Power data source: replay`
