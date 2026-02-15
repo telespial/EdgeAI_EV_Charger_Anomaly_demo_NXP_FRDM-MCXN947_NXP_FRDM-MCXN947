@@ -41,10 +41,10 @@ enum
     MID_BOT_CX = 98,
     MID_BOT_CY = 234,
     MID_R = 42,
-    BATT_X = 206,
+    BATT_X = MAIN_CX - 41,
     BATT_Y = 48,
-    BATT_W = 62,
-    BATT_H = 20,
+    BATT_W = 82,
+    BATT_H = 26,
     SCOPE_X = 324,
     SCOPE_Y = 24,
     SCOPE_W = 128,
@@ -414,10 +414,10 @@ void GaugeRender_DrawFrame(const power_sample_t *sample)
     {
         if (gPrevMainIdx != main_idx)
         {
-            DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 10, gPrevMainIdx, style->palette.panel_black, 3);
+            DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 24, gPrevMainIdx, style->palette.panel_black, 3);
             DrawGaugeTicks13(MAIN_CX, MAIN_CY, MAIN_R - 18, style->palette.text_primary, RGB565(170, 170, 176));
-            DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 10, main_idx, style->palette.text_primary, 3);
-            DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 16, main_idx, style->palette.accent_red, 1);
+            DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 24, main_idx, style->palette.text_primary, 3);
+            DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 30, main_idx, style->palette.accent_red, 1);
             gPrevMainIdx = main_idx;
         }
         if (gPrevLeftIdx != left_idx)
@@ -437,8 +437,8 @@ void GaugeRender_DrawFrame(const power_sample_t *sample)
     }
     else
     {
-        DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 10, main_idx, style->palette.text_primary, 3);
-        DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 16, main_idx, style->palette.accent_red, 1);
+        DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 24, main_idx, style->palette.text_primary, 3);
+        DrawNeedle13(MAIN_CX, MAIN_CY, MAIN_R - 30, main_idx, style->palette.accent_red, 1);
         DrawNeedle11(MID_TOP_CX, MID_TOP_CY, MID_R - 9, left_idx, style->palette.text_primary, 2);
         DrawNeedle11(MID_BOT_CX, MID_BOT_CY, MID_R - 9, right_idx, style->palette.accent_red, 2);
         gPrevMainIdx = main_idx;

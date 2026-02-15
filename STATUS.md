@@ -74,3 +74,6 @@ State: initialized
 - Firmware rebuilt and reflashed after unit-letter overlay addition.
 - Added extreme-left green vertical bar ending at the white guide line.
 - Firmware rebuilt and reflashed after left accent bar addition.
+- Left guide line moved outward to increase gap from gauges.
+- `CURRENT` text aligned to match short-guide/label relationship used by `POWER`.
+- Firmware rebuilt and reflashed after spacing/alignment refinement.

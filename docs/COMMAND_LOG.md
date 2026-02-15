@@ -128,3 +128,7 @@ Format:
 - 2026-02-14 17:47:13 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile left accent bar update
 - 2026-02-14 17:47:13 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash left accent bar update
 - 2026-02-14 17:47:13 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record left accent bar addition
+- 2026-02-14 17:49:50 | patch src/gauge_render.c | move left guide farther left and align CURRENT with short guide pattern
+- 2026-02-14 17:49:50 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile left-guide/current alignment update
+- 2026-02-14 17:49:50 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash left-guide/current alignment update
+- 2026-02-14 17:49:50 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record left spacing/current alignment update
