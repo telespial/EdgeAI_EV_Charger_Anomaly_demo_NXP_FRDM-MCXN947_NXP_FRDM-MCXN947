@@ -65,3 +65,5 @@ State: initialized
 - `CURRENT` label moved farther down below upper gauge to avoid overlap.
 - Matching upper horizontal line shifted downward to align with updated label placement.
 - Firmware rebuilt and reflashed after upper-label/line reposition.
+- Adjusted `CURRENT` label and upper short horizontal line to eliminate overlap with gauge/text.
+- Firmware rebuilt and reflashed after CURRENT/line cleanup.

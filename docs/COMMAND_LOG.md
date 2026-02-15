@@ -112,3 +112,7 @@ Format:
 - 2026-02-14 17:40:23 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile upper-label overlap fix
 - 2026-02-14 17:40:23 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash upper-label overlap fix
 - 2026-02-14 17:40:23 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record upper label/line reposition
+- 2026-02-14 17:41:53 | patch src/gauge_render.c | move CURRENT label and upper short line to remove remaining overlap
+- 2026-02-14 17:41:53 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile CURRENT/line overlap fix
+- 2026-02-14 17:41:53 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash CURRENT/line overlap fix
+- 2026-02-14 17:41:53 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record CURRENT/line overlap cleanup

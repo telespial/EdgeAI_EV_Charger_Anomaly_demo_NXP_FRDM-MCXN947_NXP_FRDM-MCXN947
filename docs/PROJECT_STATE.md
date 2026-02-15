@@ -211,3 +211,9 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
   - moved `CURRENT` further below upper gauge
   - moved matching short upper horizontal guide line lower to align with new label position
 - Rebuilt and flashed successfully to FRDM-MCXN947.
+
+## Update 2026-02-15
+- Finalized upper-left label cleanup:
+  - moved `CURRENT` text upward/downward balance to clear gauge overlap
+  - aligned the short upper horizontal guide to avoid text collisions
+- Rebuilt and flashed successfully to FRDM-MCXN947.
