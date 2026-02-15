@@ -12,6 +12,7 @@ Target hardware:
 - Firmware app is currently a bring-up baseline that prints a startup banner.
 - Gauge style baseline `cockpit_dark_v1` has been defined for a sports-cockpit look.
 - Replay-based test data pipeline is in place (`data/replay_trace.csv` -> `src/replay_trace_generated.h`).
+- First cockpit-style LCD dashboard render is implemented and flash-validated.
 - EV charger runtime logic is pending implementation.
 
 ## Quickstart

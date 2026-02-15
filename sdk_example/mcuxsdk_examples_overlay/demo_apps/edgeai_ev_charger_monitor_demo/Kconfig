@@ -1,1 +1,22 @@
-# Kconfig placeholder for edgeai_ev_charger_monitor_demo.
+# It is optional to provide example specific Kconfig.
+
+rsource "${SdkRootDirPath}/Kconfig.mcuxpresso"
+
+mainmenu "EdgeAI EV Charger Monitor Demo Configuration"
+
+menuconfig EDGEAI_USE_PAR_LCD_S035
+    bool "Enable PAR-LCD-S035 (FlexIO ST7796S) display"
+    default y
+    help
+      Enables the MCUX display bus and controller drivers required for the
+      FRDM-MCXN947 PAR-LCD-S035 shield.
+
+if EDGEAI_USE_PAR_LCD_S035
+
+config EDGEAI_USE_PAR_LCD_S035_DRIVERS
+    bool
+    default y
+    select MCUX_COMPONENT_driver.dbi_flexio_edma
+    select MCUX_COMPONENT_driver.st7796s
+
+endif

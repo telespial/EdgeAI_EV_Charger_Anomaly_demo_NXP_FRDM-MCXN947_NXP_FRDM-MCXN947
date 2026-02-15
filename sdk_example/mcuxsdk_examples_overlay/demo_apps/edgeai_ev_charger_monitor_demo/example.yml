@@ -1,4 +1,6 @@
-example:
-  name: edgeai_ev_charger_monitor_demo
-  board:
-    - frdmmcxn947
+name: edgeai_ev_charger_monitor_demo
+description: EV charger monitor cockpit dashboard demo (FRDM-MCXN947)
+boards:
+  - frdmmcxn947
+toolchains:
+  - armgcc

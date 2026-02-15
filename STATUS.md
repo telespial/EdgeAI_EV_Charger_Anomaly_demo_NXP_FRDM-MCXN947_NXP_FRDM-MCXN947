@@ -11,4 +11,5 @@ State: initialized
 - Added cockpit-style gauge theme preset (`cockpit_dark_v1`) and documentation.
 - Added replay/live-override data source abstraction for gauge testing.
 - Added CSV-to-header conversion flow for editable test traces.
-- EV charger monitoring logic and on-screen gauge rendering remain to be implemented.
+- Added first on-screen cockpit dashboard render (rings, needles, digital readouts).
+- Build+flash validated using shared workspace path override.

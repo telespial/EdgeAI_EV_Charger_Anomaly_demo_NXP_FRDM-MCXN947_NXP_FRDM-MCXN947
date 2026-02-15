@@ -16,7 +16,8 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
 - UART startup marker prints on boot.
 - Gauge style preset `cockpit_dark_v1` is defined (`src/gauge_style.*`) and logged at boot.
 - Replay test samples feed the runtime data path via `src/power_data_source.*`.
-- EV charger monitor sensing/state/UI logic is pending implementation.
+- Cockpit dashboard frame now renders on LCD using `src/gauge_render.c`.
+- EV charger monitor sensing/state classifier and alarm logic are still pending.
 
 ## Next Milestones
 - Add EV charger signal acquisition path.
@@ -39,3 +40,11 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
 - Added runtime data abstraction in `src/power_data_source.h` and `src/power_data_source.c`.
 - Wired sample output logging in `src/edgeai_ev_charger_monitor_demo.c`.
 - Added pipeline documentation in `docs/TEST_DATA_PIPELINE.md`.
+
+## Update 2026-02-15
+- Added first cockpit-style LCD renderer (`src/gauge_render.c`) with rings, needles, and numeric fields.
+- Imported display/text primitives (`src/par_lcd_s035.*`, `src/text5x7.*`) and expanded glyph coverage.
+- Updated demo startup loop to render live replay samples to LCD.
+- Build succeeded and flash completed via:
+  - workspace: `.../EdgeAI_sphere_demo.../mcuxsdk_ws`
+  - build dir: `build_ev_charger_try3`

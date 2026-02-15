@@ -2,7 +2,7 @@
 
 - Implement EV charger telemetry acquisition module.
 - Add state model (idle/charging/fault/complete).
-- Integrate `cockpit_dark_v1` gauge rendering using `src/gauge_style.*`.
+- Tune cockpit gauge geometry/colors and optimize draw performance.
 - Add UI rendering and alarms.
 - Add UART/debug command path to update `PowerData_SetLiveOverride()` at runtime.
 - Capture baseline validation run and create first golden restore point.
@@ -381,4 +381,3 @@ Write the exact trace_convert.py structure
 Design the replay engine state machine
 
 Or produce a file-by-file project architecture ready for implementation
-

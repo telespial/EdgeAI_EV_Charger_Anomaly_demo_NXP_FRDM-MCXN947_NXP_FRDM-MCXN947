@@ -14,3 +14,9 @@ Format:
 - 2026-02-14 15:54:04 | add src/power_data_source.* and src/replay_trace_generated.h and update src/edgeai_ev_charger_monitor_demo.c | implement replay/live-override runtime test data path
 - 2026-02-14 15:54:04 | add data/replay_trace.csv and tools/trace_csv_to_header.py and regenerate header | create editable test-data pipeline
 - 2026-02-14 15:54:04 | update docs/TEST_DATA_PIPELINE.md README.md docs/TODO.md STATUS.md docs/PROJECT_STATE.md | document system-function test data architecture
+- 2026-02-14 16:10:02 | copy par_lcd_s035.* and text5x7.* from sphere demo | import proven LCD/text primitives
+- 2026-02-14 16:10:02 | add src/gauge_render.* and integrate in main/CMake | render first cockpit-style dashboard on LCD
+- 2026-02-14 16:10:02 | ./tools/setup_mcuxsdk_ws.sh | initialize project workspace (partial, optional middleware fetch failures)
+- 2026-02-14 16:10:02 | install overlay + west build using shared sphere workspace | produce build_ev_charger_try3 binary
+- 2026-02-14 16:10:02 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash validated on FRDM-MCXN947 probe #1
+- 2026-02-14 16:10:02 | update STATUS/PROJECT_STATE/TODO/BUILD_FLASH docs | record renderer and known-good build/flash path

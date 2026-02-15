@@ -17,6 +17,9 @@ mcux_add_source(
     SOURCES src/edgeai_ev_charger_monitor_demo.c
             src/gauge_style.c
             src/power_data_source.c
+            src/gauge_render.c
+            src/par_lcd_s035.c
+            src/text5x7.c
 )
 
 mcux_add_include(
