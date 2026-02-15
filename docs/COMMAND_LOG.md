@@ -84,3 +84,7 @@ Format:
 - 2026-02-14 17:29:05 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile inward tick-dot adjustment
 - 2026-02-14 17:29:05 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash inward tick-dot adjustment
 - 2026-02-14 17:29:05 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record inward tick-dot placement change
+- 2026-02-14 17:30:19 | patch src/gauge_render.c | remove `SPEED` label and SOC bar/text from main gauge
+- 2026-02-14 17:30:19 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile label/SOC removal update
+- 2026-02-14 17:30:19 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash label/SOC removal update
+- 2026-02-14 17:30:19 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record label/SOC removal changes

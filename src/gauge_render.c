@@ -325,32 +325,14 @@ static void DrawStaticDashboard(const gauge_style_preset_t *style)
     DrawLine(MAIN_CX + 58, MAIN_CY - 35, MAIN_CX + 82, MAIN_CY - 3, 2, style->palette.accent_red);
     DrawLine(MAIN_CX + 60, MAIN_CY - 24, MAIN_CX + 84, MAIN_CY + 8, 2, style->palette.accent_red);
 
-    edgeai_text5x7_draw_scaled(MAIN_CX - 22, MAIN_CY + 60, 1, "SPEED", style->palette.text_secondary);
     edgeai_text5x7_draw_scaled(MID_TOP_CX - 18, MID_TOP_CY + 34, 1, "CURRENT", style->palette.text_primary);
     edgeai_text5x7_draw_scaled(MID_BOT_CX - 14, MID_BOT_CY + 34, 1, "POWER", style->palette.text_primary);
-    edgeai_text5x7_draw_scaled(MAIN_CX - 16, MAIN_CY + 74, 1, "SOC", style->palette.text_secondary);
     brand_x = ((PANEL_X0 + PANEL_X1) / 2) - (edgeai_text5x7_width(2, "NXP EDGEAI") / 2);
     edgeai_text5x7_draw_scaled(brand_x, 286, 2, "NXP EDGEAI", RGB565(255, 208, 52));
 
-    DrawLine(MAIN_CX - 24, MAIN_CY + 84, MAIN_CX + 24, MAIN_CY + 84, 2, RGB565(48, 8, 10));
     DrawBatteryIndicatorFrame(style);
     DrawScopeFrame(style);
     DrawTerminalFrame(style);
-}
-
-static void DrawSocBar(uint8_t soc, const gauge_style_preset_t *style)
-{
-    int32_t x0 = MAIN_CX - 24;
-    int32_t y0 = MAIN_CY + 80;
-    int32_t w = 48;
-    int32_t fill = (soc * w) / 100;
-
-    par_lcd_s035_fill_rect(x0, y0, x0 + w, y0 + 7, RGB565(24, 28, 32));
-    if (fill > 0)
-    {
-        uint16_t c = (soc < 25u) ? style->palette.accent_red : style->palette.accent_green;
-        par_lcd_s035_fill_rect(x0 + 1, y0 + 1, x0 + fill - 1, y0 + 6, c);
-    }
 }
 
 static void ClearDynamicValueBands(const gauge_style_preset_t *style)
@@ -358,7 +340,6 @@ static void ClearDynamicValueBands(const gauge_style_preset_t *style)
     par_lcd_s035_fill_rect(MAIN_CX - 40, MAIN_CY - 10, MAIN_CX + 40, MAIN_CY + 16, style->palette.panel_black);
     par_lcd_s035_fill_rect(MID_TOP_CX - 24, MID_TOP_CY - 10, MID_TOP_CX + 24, MID_TOP_CY + 10, style->palette.panel_black);
     par_lcd_s035_fill_rect(MID_BOT_CX - 24, MID_BOT_CY - 10, MID_BOT_CX + 24, MID_BOT_CY + 10, style->palette.panel_black);
-    par_lcd_s035_fill_rect(MAIN_CX + 26, MAIN_CY + 74, MAIN_CX + 64, MAIN_CY + 88, style->palette.panel_black);
 }
 
 bool GaugeRender_Init(void)
@@ -492,10 +473,7 @@ void GaugeRender_DrawFrame(const power_sample_t *sample)
 
     if (!gDynamicReady || gPrevSoc != sample->soc_pct)
     {
-        DrawSocBar(sample->soc_pct, style);
         DrawBatteryIndicatorDynamic(style, sample->soc_pct);
-        snprintf(line, sizeof(line), "%3u%%", sample->soc_pct);
-        edgeai_text5x7_draw_scaled(MAIN_CX + 26, MAIN_CY + 76, 1, line, style->palette.text_primary);
     }
 
     if (!gDynamicReady || gPrevCurrent != sample->current_mA || gPrevPower != sample->power_mW ||

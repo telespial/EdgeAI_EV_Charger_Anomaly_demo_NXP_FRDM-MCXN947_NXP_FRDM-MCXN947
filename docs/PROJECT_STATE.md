@@ -172,3 +172,9 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
 - Moved gauge hashmark dots inward so they render inside the circular rings instead of on the ring edge.
 - Updated tick redraw radii in `src/gauge_render.c` for static and dynamic tick redraw paths.
 - Rebuilt and flashed successfully to FRDM-MCXN947.
+
+## Update 2026-02-15
+- Removed `SPEED` label from the main gauge.
+- Removed SOC data bar/line and SOC percentage text from the main gauge area.
+- SOC is still represented by the battery indicator above the main gauge.
+- Rebuilt and flashed successfully to FRDM-MCXN947.

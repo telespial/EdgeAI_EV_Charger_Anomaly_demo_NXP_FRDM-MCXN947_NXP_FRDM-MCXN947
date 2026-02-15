@@ -44,3 +44,6 @@ State: initialized
 - Firmware rebuilt and reflashed after arc LUT update.
 - Gauge hashmark dots now render inside the circular lines (inward radius offset applied).
 - Firmware rebuilt and reflashed after tick-radius adjustment.
+- Removed main-gauge `SPEED` text and SOC data bar/text display.
+- Battery indicator remains as SOC visualization above main gauge.
+- Firmware rebuilt and reflashed after label/SOC display removal.
