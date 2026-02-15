@@ -25,6 +25,8 @@ static uint8_t gTraceHead = 0u;
 static bool gTraceReady = false;
 static uint32_t gFrameCounter = 0u;
 static uint8_t gPrevBarLevel = 255u;
+static uint8_t gPrevBarTemp = 255u;
+static bool gPrevOverTemp = false;
 
 #define RGB565(r, g, b) (uint16_t)((((uint16_t)(r) & 0xF8u) << 8) | (((uint16_t)(g) & 0xFCu) << 3) | (((uint16_t)(b) & 0xF8u) >> 3))
 
@@ -317,20 +319,25 @@ static void DrawLeftBargraphFrame(const gauge_style_preset_t *style)
         int32_t y = inner_y1 - (i * seg_step);
         DrawLine(inner_x0, y, inner_x1, y, 1, RGB565(18, 28, 20));
     }
+
+    par_lcd_s035_fill_rect(BAR_X0, 292, 118, 304, RGB565(2, 3, 5));
+    edgeai_text5x7_draw_scaled(BAR_X0 + 2, 294, 1, "TEMP: --C", style->palette.text_secondary);
 }
 
-static void DrawLeftBargraphDynamic(const gauge_style_preset_t *style, uint16_t current_mA)
+static void DrawLeftBargraphDynamic(const gauge_style_preset_t *style, uint8_t temp_c)
 {
     int32_t i;
-    int32_t level = ClampI32(((int32_t)current_mA * BAR_SEGMENTS) / 220, 0, BAR_SEGMENTS);
+    int32_t level = ClampI32((((int32_t)temp_c - 20) * BAR_SEGMENTS) / 60, 0, BAR_SEGMENTS);
     int32_t inner_x0 = BAR_X0 + 3;
     int32_t inner_x1 = BAR_X1 - 3;
     int32_t inner_y0 = BAR_Y0 + 3;
     int32_t inner_y1 = BAR_Y1 - 3;
     int32_t inner_h = (inner_y1 - inner_y0 + 1);
     int32_t seg_step = inner_h / BAR_SEGMENTS;
+    bool over_temp = (temp_c >= 70u);
+    char line[16];
 
-    if ((uint8_t)level == gPrevBarLevel)
+    if (((uint8_t)level == gPrevBarLevel) && (temp_c == gPrevBarTemp) && (over_temp == gPrevOverTemp))
     {
         return;
     }
@@ -356,7 +363,11 @@ static void DrawLeftBargraphDynamic(const gauge_style_preset_t *style, uint16_t 
 
         if (i < level)
         {
-            if (i < (BAR_SEGMENTS / 2))
+            if (over_temp)
+            {
+                color = style->palette.accent_red;
+            }
+            else if (i < (BAR_SEGMENTS / 2))
             {
                 color = style->palette.accent_green;
             }
@@ -373,7 +384,13 @@ static void DrawLeftBargraphDynamic(const gauge_style_preset_t *style, uint16_t 
         par_lcd_s035_fill_rect(inner_x0, seg_top, inner_x1, seg_bot, color);
     }
 
+    par_lcd_s035_fill_rect(BAR_X0, 292, 118, 304, RGB565(2, 3, 5));
+    snprintf(line, sizeof(line), "TEMP: %2uC", temp_c);
+    edgeai_text5x7_draw_scaled(BAR_X0 + 2, 294, 1, line, over_temp ? style->palette.accent_red : style->palette.text_secondary);
+
     gPrevBarLevel = (uint8_t)level;
+    gPrevBarTemp = temp_c;
+    gPrevOverTemp = over_temp;
 }
 
 static void DrawStaticDashboard(const gauge_style_preset_t *style)
@@ -447,6 +464,8 @@ bool GaugeRender_Init(void)
         gTraceReady = false;
         gFrameCounter = 0u;
         gPrevBarLevel = 255u;
+        gPrevBarTemp = 255u;
+        gPrevOverTemp = false;
     }
     return gLcdReady;
 }
@@ -476,6 +495,8 @@ void GaugeRender_DrawFrame(const power_sample_t *sample)
         gPrevLeftIdx = -1;
         gPrevRightIdx = -1;
         gPrevBarLevel = 255u;
+        gPrevBarTemp = 255u;
+        gPrevOverTemp = false;
     }
 
     main_idx = ClampI32(((int32_t)sample->voltage_mV - 3600) / 55, 0, 12);
@@ -535,7 +556,7 @@ void GaugeRender_DrawFrame(const power_sample_t *sample)
     }
 
     DrawScopeDynamic(style);
-    DrawLeftBargraphDynamic(style, sample->current_mA);
+    DrawLeftBargraphDynamic(style, sample->temp_c);
 
     if (!gDynamicReady || gPrevCurrent != sample->current_mA || gPrevPower != sample->power_mW ||
         gPrevVoltage != sample->voltage_mV || gPrevSoc != sample->soc_pct)

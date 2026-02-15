@@ -152,3 +152,7 @@ Format:
 - 2026-02-14 18:06:45 | MCUX_EXAMPLES_DIR=.../mcuxsdk/examples ./sdk_example/install_mcux_overlay.sh + EDGEAI_EV_CHARGER_MONITOR_DEMO_ROOT=... west build -d .../build_ev_charger_try3 ... | compile left-bargraph update
 - 2026-02-14 18:06:45 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash left-bargraph update to FRDM-MCXN947
 - 2026-02-14 18:06:45 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record left-bargraph update
+- 2026-02-14 18:38:40 | patch src/gauge_render.c | wire left vertical bargraph to temperature, add red over-temp limit, and add bottom `TEMP: XXC` readout below lower horizontal line
+- 2026-02-14 18:38:40 | MCUX_EXAMPLES_DIR=.../mcuxsdk/examples ./sdk_example/install_mcux_overlay.sh + EDGEAI_EV_CHARGER_MONITOR_DEMO_ROOT=... west build -d .../build_ev_charger_try3 ... | compile temperature-bargraph update
+- 2026-02-14 18:38:40 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash temperature-bargraph update to FRDM-MCXN947
+- 2026-02-14 18:38:40 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record temperature-bargraph and over-temp text update

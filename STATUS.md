@@ -88,3 +88,6 @@ State: initialized
 - Left vertical green box converted into a live segmented bargraph.
 - Bargraph level now updates from current draw with green/yellow/red bands.
 - Firmware rebuilt and reflashed after bargraph update.
+- Left vertical bargraph now tracks temperature rather than current.
+- Added red over-temp state (`temp_c >= 70`) and bottom readout `TEMP: XXC` below the lower horizontal line.
+- Firmware rebuilt and reflashed after temp-bargraph wiring update.

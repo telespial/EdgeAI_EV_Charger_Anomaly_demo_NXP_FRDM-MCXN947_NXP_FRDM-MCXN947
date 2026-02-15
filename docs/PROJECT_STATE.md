@@ -267,3 +267,11 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
 - Added `DrawLeftBargraphFrame()` and `DrawLeftBargraphDynamic()` in `src/gauge_render.c`.
 - Bargraph now tracks live current (`current_mA`) with 20 segments and threshold colors (green/yellow/red).
 - Rebuilt and flashed successfully to FRDM-MCXN947 (LinkServer probe `#1`).
+
+## Update 2026-02-14
+- Rewired the left vertical bargraph to temperature instead of current.
+- Added over-temperature behavior in `src/gauge_render.c`:
+  - bargraph turns red when `temp_c >= 70`
+  - bottom label below the lower horizontal line now shows `TEMP: XXC`
+- Added dynamic bottom temperature text update under the bargraph region.
+- Rebuilt and flashed successfully to FRDM-MCXN947 (LinkServer probe `#1`).
