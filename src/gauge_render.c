@@ -7,6 +7,7 @@
 #include "text5x7.h"
 
 static bool gLcdReady = false;
+static bool gStaticReady = false;
 
 static int32_t ClampI32(int32_t v, int32_t lo, int32_t hi)
 {
@@ -58,12 +59,55 @@ static void DrawGaugeTicks(int32_t cx, int32_t cy, uint16_t color)
     }
 }
 
+static void DrawStaticDashboard(const gauge_style_preset_t *style)
+{
+    par_lcd_s035_fill(style->palette.bg_black);
+    par_lcd_s035_fill_rect(18, 16, 462, 304, style->palette.panel_black);
+    par_lcd_s035_fill_rect(22, 20, 458, 46, style->palette.bezel_dark);
+    edgeai_text5x7_draw_scaled(34, 26, 2, "EV CHARGE MONITOR", style->palette.text_primary);
+
+    DrawRing(150, 170, 94, 12, style->palette.bezel_light, style->palette.panel_black);
+    DrawRing(320, 170, 76, 10, style->palette.bezel_dark, style->palette.panel_black);
+    DrawRing(418, 96, 44, 8, style->palette.bezel_light, style->palette.panel_black);
+
+    DrawGaugeTicks(150, 170, style->palette.text_secondary);
+    DrawGaugeTicks(320, 170, style->palette.text_secondary);
+
+    edgeai_text5x7_draw_scaled(108, 236, 2, "CURRENT", style->palette.text_secondary);
+    edgeai_text5x7_draw_scaled(286, 236, 2, "POWER", style->palette.text_secondary);
+    edgeai_text5x7_draw_scaled(396, 146, 2, "SOC", style->palette.text_secondary);
+}
+
+static void RedrawGaugeDynamicBase(const gauge_style_preset_t *style)
+{
+    /* Clear only the moving areas to avoid full-screen raster flashing. */
+    par_lcd_s035_fill_rect(88, 108, 214, 232, style->palette.panel_black);
+    DrawRing(150, 170, 94, 12, style->palette.bezel_light, style->palette.panel_black);
+    DrawGaugeTicks(150, 170, style->palette.text_secondary);
+
+    par_lcd_s035_fill_rect(266, 116, 374, 224, style->palette.panel_black);
+    DrawRing(320, 170, 76, 10, style->palette.bezel_dark, style->palette.panel_black);
+    DrawGaugeTicks(320, 170, style->palette.text_secondary);
+
+    par_lcd_s035_fill_rect(374, 52, 462, 136, style->palette.panel_black);
+    DrawRing(418, 96, 44, 8, style->palette.bezel_light, style->palette.panel_black);
+
+    par_lcd_s035_fill_rect(94, 252, 218, 272, style->palette.panel_black);
+    par_lcd_s035_fill_rect(274, 252, 398, 272, style->palette.panel_black);
+    par_lcd_s035_fill_rect(354, 194, 462, 214, style->palette.panel_black);
+    par_lcd_s035_fill_rect(386, 162, 454, 182, style->palette.panel_black);
+}
+
 bool GaugeRender_Init(void)
 {
+    const gauge_style_preset_t *style;
+
     gLcdReady = par_lcd_s035_init();
     if (gLcdReady)
     {
-        par_lcd_s035_fill(0x0000u);
+        style = GaugeStyle_GetCockpitPreset();
+        DrawStaticDashboard(style);
+        gStaticReady = true;
     }
     return gLcdReady;
 }
@@ -83,17 +127,12 @@ void GaugeRender_DrawFrame(const power_sample_t *sample)
 
     style = GaugeStyle_GetCockpitPreset();
 
-    par_lcd_s035_fill(style->palette.bg_black);
-    par_lcd_s035_fill_rect(18, 16, 462, 304, style->palette.panel_black);
-    par_lcd_s035_fill_rect(22, 20, 458, 46, style->palette.bezel_dark);
-    edgeai_text5x7_draw_scaled(34, 26, 2, "EV CHARGE MONITOR", style->palette.text_primary);
-
-    DrawRing(150, 170, 94, 12, style->palette.bezel_light, style->palette.panel_black);
-    DrawRing(320, 170, 76, 10, style->palette.bezel_dark, style->palette.panel_black);
-    DrawRing(418, 96, 44, 8, style->palette.bezel_light, style->palette.panel_black);
-
-    DrawGaugeTicks(150, 170, style->palette.text_secondary);
-    DrawGaugeTicks(320, 170, style->palette.text_secondary);
+    if (!gStaticReady)
+    {
+        DrawStaticDashboard(style);
+        gStaticReady = true;
+    }
+    RedrawGaugeDynamicBase(style);
 
     speed_idx = ClampI32((int32_t)sample->current_mA / 20, 0, 10);
     power_idx = ClampI32((int32_t)sample->power_mW / 260, 0, 10);
@@ -103,18 +142,12 @@ void GaugeRender_DrawFrame(const power_sample_t *sample)
     DrawNeedleBand(320, 170, 46, power_idx, 10, style->palette.accent_red);
     DrawNeedleBand(418, 96, 24, soc_idx, 10, style->palette.accent_green);
 
-    snprintf(line, sizeof(line), "CURRENT");
-    edgeai_text5x7_draw_scaled(108, 236, 2, line, style->palette.text_secondary);
     snprintf(line, sizeof(line), "%4u MA", sample->current_mA);
     edgeai_text5x7_draw_scaled(94, 254, 2, line, style->palette.text_primary);
 
-    snprintf(line, sizeof(line), "POWER");
-    edgeai_text5x7_draw_scaled(286, 236, 2, line, style->palette.text_secondary);
     snprintf(line, sizeof(line), "%4u MW", sample->power_mW);
     edgeai_text5x7_draw_scaled(274, 254, 2, line, style->palette.text_primary);
 
-    snprintf(line, sizeof(line), "SOC");
-    edgeai_text5x7_draw_scaled(396, 146, 2, line, style->palette.text_secondary);
     snprintf(line, sizeof(line), "%3u%%", sample->soc_pct);
     edgeai_text5x7_draw_scaled(386, 164, 2, line, style->palette.text_primary);
     snprintf(line, sizeof(line), "%5u MV", sample->voltage_mV);

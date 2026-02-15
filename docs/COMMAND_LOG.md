@@ -27,3 +27,6 @@ Format:
 - 2026-02-14 16:15:13 | patch main init to BOARD_InitHardware + include app.h; fix gauge_style newlines | restore LCD initialization path and clean boot logs
 - 2026-02-14 16:15:13 | rebuild + flash build_ev_charger_try3 in shared workspace | deploy LCD init fix
 - 2026-02-14 16:15:13 | timeout cat /dev/ttyACM0 | verify 'Gauge render: ready' after reboot
+- 2026-02-14 16:17:47 | patch src/gauge_render.c to static+dynamic redraw split | reduce full-screen raster flashing
+- 2026-02-14 16:17:47 | patch src/edgeai_ev_charger_monitor_demo.c to redraw only on sample change | lower visual flicker and unnecessary writes
+- 2026-02-14 16:17:47 | rebuild + flash build_ev_charger_try3 | deploy anti-flicker gauge renderer

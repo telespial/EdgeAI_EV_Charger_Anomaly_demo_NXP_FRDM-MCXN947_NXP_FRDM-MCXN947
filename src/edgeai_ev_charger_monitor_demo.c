@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <string.h>
 
 #include "app.h"
 #include "board.h"
@@ -12,6 +13,8 @@ int main(void)
     uint32_t print_divider = 0u;
     bool lcd_ok;
     const power_sample_t *s;
+    power_sample_t last_drawn;
+    bool has_last = false;
 
     BOARD_InitHardware();
 
@@ -26,6 +29,8 @@ int main(void)
     if (lcd_ok)
     {
         GaugeRender_DrawFrame(s);
+        last_drawn = *s;
+        has_last = true;
     }
 
     for (;;)
@@ -33,9 +38,11 @@ int main(void)
         PowerData_Tick();
         s = PowerData_Get();
 
-        if (lcd_ok)
+        if (lcd_ok && (!has_last || memcmp(s, &last_drawn, sizeof(last_drawn)) != 0))
         {
             GaugeRender_DrawFrame(s);
+            last_drawn = *s;
+            has_last = true;
         }
 
         print_divider++;

@@ -15,3 +15,4 @@ State: initialized
 - Build+flash validated using shared workspace path override.
 - Render loop cadence bug fixed and reflashed (blank-screen mitigation).
 - LCD init path fixed (`BOARD_InitHardware`) and UART now reports `Gauge render: ready`.
+- Reduced raster flicker by avoiding full-screen redraw each frame (dynamic-region redraw only).

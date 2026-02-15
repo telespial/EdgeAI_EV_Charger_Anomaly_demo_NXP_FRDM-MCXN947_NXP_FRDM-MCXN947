@@ -63,3 +63,11 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
 - Verified UART boot markers include:
   - `Gauge render: ready`
   - `Power data source: replay`
+
+## Update 2026-02-15
+- Reduced visible raster flashing in gauge UI:
+  - `src/gauge_render.c` now keeps static dashboard background persistent
+  - only dynamic gauge/value regions are cleared and redrawn per update
+  - full-screen clear per frame removed
+- `src/edgeai_ev_charger_monitor_demo.c` now redraws only when sample values change.
+- Rebuilt and reflashed `build_ev_charger_try3` with anti-flicker update.
