@@ -251,6 +251,8 @@ static void DrawScopeDynamic(const gauge_style_preset_t *style)
 
 static void DrawStaticDashboard(const gauge_style_preset_t *style)
 {
+    int32_t brand_x;
+
     par_lcd_s035_fill(RGB565(0, 0, 0));
     par_lcd_s035_fill_rect(PANEL_X0, PANEL_Y0, PANEL_X1, PANEL_Y1, RGB565(2, 3, 5));
     par_lcd_s035_fill_rect(PANEL_X0 + 4, PANEL_Y0 + 4, PANEL_X1 - 4, PANEL_Y0 + 30, RGB565(8, 10, 13));
@@ -285,7 +287,8 @@ static void DrawStaticDashboard(const gauge_style_preset_t *style)
     edgeai_text5x7_draw_scaled(MID_TOP_CX - 18, MID_TOP_CY + 34, 1, "CURRENT", style->palette.text_primary);
     edgeai_text5x7_draw_scaled(MID_BOT_CX - 14, MID_BOT_CY + 34, 1, "POWER", style->palette.text_primary);
     edgeai_text5x7_draw_scaled(MAIN_CX - 16, MAIN_CY + 74, 1, "SOC", style->palette.text_secondary);
-    edgeai_text5x7_draw_scaled(154, 286, 2, "NXP EDGEAI", RGB565(255, 208, 52));
+    brand_x = ((PANEL_X0 + PANEL_X1) / 2) - (edgeai_text5x7_width(2, "NXP EDGEAI") / 2);
+    edgeai_text5x7_draw_scaled(brand_x, 286, 2, "NXP EDGEAI", RGB565(255, 208, 52));
 
     DrawLine(MAIN_CX - 24, MAIN_CY + 84, MAIN_CX + 24, MAIN_CY + 84, 2, RGB565(48, 8, 10));
     DrawScopeFrame(style);

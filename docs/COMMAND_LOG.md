@@ -68,3 +68,7 @@ Format:
 - 2026-02-14 17:21:09 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile gauge relocation update
 - 2026-02-14 17:21:09 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash small-gauge relocation update
 - 2026-02-14 17:21:09 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record small-gauge segment change
+- 2026-02-14 17:23:32 | patch src/gauge_render.c | center `NXP EDGEAI` text to full panel center using text width
+- 2026-02-14 17:23:32 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile center-alignment text update
+- 2026-02-14 17:23:32 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash centered `NXP EDGEAI` label update
+- 2026-02-14 17:23:32 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record global text-centering change

@@ -36,3 +36,5 @@ State: initialized
 - Firmware rebuilt and reflashed after text update.
 - Moved right-side small gauge into the first section so both small gauges are now grouped together in the left segment.
 - Firmware rebuilt and reflashed after gauge relocation.
+- Bottom `NXP EDGEAI` text now centered to the overall LCD panel center.
+- Firmware rebuilt and reflashed after global-center text alignment update.

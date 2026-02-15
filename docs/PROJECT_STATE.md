@@ -148,3 +148,8 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
   - `MID_TOP` at left-top region
   - `MID_BOT` at left-bottom region
 - Rebuilt and flashed successfully to FRDM-MCXN947.
+
+## Update 2026-02-15
+- Centered bottom `NXP EDGEAI` label across the full LCD panel width instead of left segment bias.
+- `src/gauge_render.c` now computes text x-position using `edgeai_text5x7_width()` and panel center constants.
+- Rebuilt and flashed successfully to FRDM-MCXN947.
