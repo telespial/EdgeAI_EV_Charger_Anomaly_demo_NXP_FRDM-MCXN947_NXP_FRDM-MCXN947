@@ -178,3 +178,7 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
 - Removed SOC data bar/line and SOC percentage text from the main gauge area.
 - SOC is still represented by the battery indicator above the main gauge.
 - Rebuilt and flashed successfully to FRDM-MCXN947.
+
+## Update 2026-02-15
+- Removed the three red hash/redline strokes from the large gauge.
+- Rebuilt and flashed successfully to FRDM-MCXN947.

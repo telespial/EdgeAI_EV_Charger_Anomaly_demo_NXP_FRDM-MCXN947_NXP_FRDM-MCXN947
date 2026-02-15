@@ -321,10 +321,6 @@ static void DrawStaticDashboard(const gauge_style_preset_t *style)
     DrawGaugeTicks11(MID_TOP_CX, MID_TOP_CY, MID_R - 12, style->palette.text_primary, RGB565(140, 140, 145));
     DrawGaugeTicks11(MID_BOT_CX, MID_BOT_CY, MID_R - 12, style->palette.text_primary, RGB565(140, 140, 145));
 
-    DrawLine(MAIN_CX + 56, MAIN_CY - 46, MAIN_CX + 78, MAIN_CY - 14, 2, style->palette.accent_red);
-    DrawLine(MAIN_CX + 58, MAIN_CY - 35, MAIN_CX + 82, MAIN_CY - 3, 2, style->palette.accent_red);
-    DrawLine(MAIN_CX + 60, MAIN_CY - 24, MAIN_CX + 84, MAIN_CY + 8, 2, style->palette.accent_red);
-
     edgeai_text5x7_draw_scaled(MID_TOP_CX - 18, MID_TOP_CY + 34, 1, "CURRENT", style->palette.text_primary);
     edgeai_text5x7_draw_scaled(MID_BOT_CX - 14, MID_BOT_CY + 34, 1, "POWER", style->palette.text_primary);
     brand_x = ((PANEL_X0 + PANEL_X1) / 2) - (edgeai_text5x7_width(2, "NXP EDGEAI") / 2);

@@ -88,3 +88,7 @@ Format:
 - 2026-02-14 17:30:19 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile label/SOC removal update
 - 2026-02-14 17:30:19 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash label/SOC removal update
 - 2026-02-14 17:30:19 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record label/SOC removal changes
+- 2026-02-14 17:31:32 | patch src/gauge_render.c | remove three red hash/redline strokes on main gauge
+- 2026-02-14 17:31:32 | source tools/mcux_env.sh + install_mcux_overlay.sh + west build | compile redline-stroke removal
+- 2026-02-14 17:31:32 | WS_DIR=... BUILD_DIR=... ./tools/flash_frdmmcxn947.sh | flash redline-stroke removal
+- 2026-02-14 17:31:32 | update docs/PROJECT_STATE.md STATUS.md docs/COMMAND_LOG.md | record main-gauge redline removal

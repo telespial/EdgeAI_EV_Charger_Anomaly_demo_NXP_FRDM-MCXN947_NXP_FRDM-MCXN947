@@ -47,3 +47,5 @@ State: initialized
 - Removed main-gauge `SPEED` text and SOC data bar/text display.
 - Battery indicator remains as SOC visualization above main gauge.
 - Firmware rebuilt and reflashed after label/SOC display removal.
+- Removed three red hash lines from main gauge styling.
+- Firmware rebuilt and reflashed after redline-stroke removal.
