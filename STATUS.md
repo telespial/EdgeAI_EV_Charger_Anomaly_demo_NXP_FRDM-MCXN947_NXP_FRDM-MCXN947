@@ -17,3 +17,4 @@ State: initialized
 - LCD init path fixed (`BOARD_InitHardware`) and UART now reports `Gauge render: ready`.
 - Reduced raster flicker by avoiding full-screen redraw each frame (dynamic-region redraw only).
 - Gauge/text overlap fixed and dynamic updates now use per-value/per-needle incremental redraw.
+- Added real-data capture pipeline scripts for MCUX energy tooling and replay conversion.

@@ -33,3 +33,7 @@ Format:
 - 2026-02-14 16:20:08 | patch gauge_render layout and incremental redraw state | fix gauge/text overlap and reduce residual flicker
 - 2026-02-14 16:20:08 | patch power_data_source replay divider | slow gauge update cadence for stability
 - 2026-02-14 16:20:08 | rebuild + flash build_ev_charger_try3 | deploy overlap/flicker fixes
+- 2026-02-14 16:24:12 | check LinkServer/energy CLI availability | verify local support for MCUX energy capture automation
+- 2026-02-14 16:24:12 | add tools/capture_energy_trace.sh and tools/trace_convert.py | implement real-data capture and conversion pipeline
+- 2026-02-14 16:24:12 | add docs/CAPTURE_MODE.md and update README/TODO/STATUS/PROJECT_STATE | document energy capture workflow and requirements
+- 2026-02-14 16:24:12 | bash -n capture_energy_trace.sh; python3 trace_convert.py --help | validate new tooling syntax

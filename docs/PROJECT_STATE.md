@@ -79,3 +79,11 @@ Project: `EdgeAI_EV_Charger_Monitor_demo_NXP_FRDM-MCXN947`
   - clear/redraw value bands only when value changes
 - Slowed replay stepping (`POWER_REPLAY_TICK_DIVIDER`) to reduce gauge thrash.
 - Rebuilt and reflashed `build_ev_charger_try3`.
+
+## Update 2026-02-15
+- Added capture-mode tooling for real board energy traces:
+  - `tools/capture_energy_trace.sh` (energy CSV + UART markers)
+  - `tools/trace_convert.py` (energy CSV -> `data/replay_trace.csv`)
+  - `docs/CAPTURE_MODE.md` workflow
+- Environment check: `mcux_energy_capture` binary is not installed on this machine.
+- Capture script supports external command template via `ENERGY_CAPTURE_CMD`.

@@ -36,3 +36,8 @@ Style references:
 Test-data references:
 - `docs/TEST_DATA_PIPELINE.md`
 - `src/power_data_source.h`
+
+Real capture references:
+- `docs/CAPTURE_MODE.md`
+- `tools/capture_energy_trace.sh`
+- `tools/trace_convert.py`

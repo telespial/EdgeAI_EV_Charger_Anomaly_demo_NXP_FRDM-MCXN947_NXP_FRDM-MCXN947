@@ -1,6 +1,7 @@
 # TODO
 
 - Implement EV charger telemetry acquisition module.
+- Integrate actual MCUX energy CLI command in `tools/capture_energy_trace.sh` (`ENERGY_CAPTURE_CMD`).
 - Add state model (idle/charging/fault/complete).
 - Tune cockpit gauge geometry/colors and optimize draw performance.
 - Add UI rendering and alarms.
