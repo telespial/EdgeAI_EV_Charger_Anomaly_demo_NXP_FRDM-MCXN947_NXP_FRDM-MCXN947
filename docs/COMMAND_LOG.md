@@ -319,3 +319,13 @@ Format:
 - `2026-02-15 15:02:51` | `./tools/flash_frdmmcxn947.sh` | PASS | Flashed name/AI top-edge alignment update to FRDM-MCXN947 (probe `#1`, `HZ22T3AOM4Z55`).
 - `2026-02-15 15:06:13` | `cp/sha256sum -> failsafe/*GOLDEN_20260215_150517*` | PASS | Created new failsafe binary, checksum, and metadata for golden restore baseline from current build output.
 - `2026-02-15 15:06:13` | `apply_patch docs/RESTORE_POINTS.md docs/PROJECT_STATE.md STATUS.md` | PASS | Added `GOLDEN_20260215_150517` restore-point documentation and marked checkpoint as current golden/failsafe baseline.
+- `2026-02-15 15:14:27` | `apply_patch src/power_data_source.h src/power_data_source.c src/edgeai_ev_charger_monitor_demo.c src/gauge_render.c` | PASS | Added high-impact AI assist/decision system: AI ON now applies watch/derate/shed-load actions, tracks prevented incidents, and exposes decision/confidence telemetry for on-screen terminal display.
+- `2026-02-15 15:14:27` | `./tools/build_frdmmcxn947.sh debug` | PASS | Built firmware with AI decision engine and AI-assist control wiring.
+- `2026-02-15 15:14:27` | `./tools/flash_frdmmcxn947.sh` | PASS | Flashed AI decision/assist update to FRDM-MCXN947 (probe `#1`, `HZ22T3AOM4Z55`).
+- `2026-02-15 15:14:27` | `./tools/build_frdmmcxn947.sh debug` | FAIL | Compile warning-as-error in `power_data_source.c`: `drift_pct` used before assignment in new risk predictor path.
+- `2026-02-15 15:14:27` | `apply_patch src/power_data_source.c` | PASS | Initialized `drift_pct` before predictive-risk math; rebuilt successfully.
+- `2026-02-15 15:14:27` | `./tools/build_frdmmcxn947.sh debug && ./tools/flash_frdmmcxn947.sh` | PASS | Built and flashed corrected AI prediction/decision update to FRDM-MCXN947 (probe `#1`, `HZ22T3AOM4Z55`).
+- 2026-02-15 16:20:00 | rewrite README.md + refresh docs/START_HERE.md docs/HARDWARE_SETUP.md docs/OPS_RUNBOOK.md docs/BUILD_FLASH.md docs/TEST_DATA_PIPELINE.md docs/CAPTURE_MODE.md docs/TODO.md docs/RESTORE_POINTS.md docs/failsafe.md + update STATUS.md/docs/PROJECT_STATE.md | align all project docs with current system reality (real AI decisions over replay telemetry baseline) and developer reuse path
+- 2026-02-15 17:02:04 | docs refresh (README + docs/*.md + STATUS.md) | standardized Anomaly project naming and documented AI pipeline details for GitHub landing page
+- 2026-02-15 17:02:04 | create failsafe package from mcuxsdk_ws/mcuxsdk_ws/build_anomaly/edgeai_ev_charger_monitor_demo_cm33_core0.bin | created `GOLDEN_20260215_170204` as final golden + failsafe checkpoint
+- 2026-02-15 17:02:04 | update docs/RESTORE_POINTS.md + docs/failsafe.md | set active restore target to `edgeai_ev_charger_anomaly_demo_cm33_core0_GOLDEN_20260215_170204.bin`

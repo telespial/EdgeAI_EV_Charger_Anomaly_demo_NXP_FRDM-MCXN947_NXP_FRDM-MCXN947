@@ -1,6 +1,7 @@
 #include "gauge_render.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #include "gauge_style.h"
 #include "par_lcd_s035.h"
@@ -30,10 +31,17 @@ static uint8_t gPrevBarLevel = 255u;
 static uint8_t gPrevBarTemp = 255u;
 static bool gPrevOverTemp = false;
 static bool gPrevAiEnabled = false;
+static uint8_t gPrevProfile = 255u;
 static uint8_t gPrevAiStatus = 255u;
 static uint8_t gPrevAiFaultFlags = 255u;
 static uint16_t gPrevThermalRisk = 65535u;
 static uint8_t gPrevDrift = 255u;
+static uint16_t gAlertWarningHold = 0u;
+static bool gAlertVisualValid = false;
+static uint8_t gAlertVisualStatus = 255u;
+static bool gAlertVisualSevere = false;
+static bool gAlertVisualAiEnabled = false;
+static char gAlertVisualDetail[30];
 static uint32_t gLastScopeSampleSimS = 0u;
 static uint8_t gTimelineHour = 3u;
 static bool gTimelineTouchLatch = false;
@@ -45,6 +53,8 @@ static int8_t gTimelineHoldDir = 0;
 #define SCOPE_BUCKET_SECONDS (SCOPE_SNAPSHOT_SECONDS / SCOPE_TRACE_POINTS)
 
 #define RGB565(r, g, b) (uint16_t)((((uint16_t)(r) & 0xF8u) << 8) | (((uint16_t)(g) & 0xFCu) << 3) | (((uint16_t)(b) & 0xF8u) >> 3))
+#define WARN_YELLOW RGB565(255, 255, 0)
+#define ALERT_RED RGB565(255, 0, 0)
 
 enum
 {
@@ -254,11 +264,15 @@ static void DrawScopeFrame(const gauge_style_preset_t *style)
     DrawLine(TIMELINE_X0, TIMELINE_Y1, TIMELINE_X1, TIMELINE_Y1, 1, RGB565(130, 130, 136));
     DrawLine(TIMELINE_X0, TIMELINE_Y0, TIMELINE_X0, TIMELINE_Y1, 1, RGB565(130, 130, 136));
     DrawLine(TIMELINE_X1, TIMELINE_Y0, TIMELINE_X1, TIMELINE_Y1, 1, RGB565(130, 130, 136));
-    par_lcd_s035_fill_rect(lx0 + 1, TIMELINE_Y0 + 1, lx1 - 1, TIMELINE_Y1 - 1, RGB565(32, 36, 44));
-    par_lcd_s035_fill_rect(rx0 + 1, TIMELINE_Y0 + 1, rx1 - 1, TIMELINE_Y1 - 1, RGB565(32, 36, 44));
+    par_lcd_s035_fill_rect(lx0 + 1, TIMELINE_Y0 + 1, lx1 - 1, TIMELINE_Y1 - 1, RGB565(26, 58, 110));
+    par_lcd_s035_fill_rect(rx0 + 1, TIMELINE_Y0 + 1, rx1 - 1, TIMELINE_Y1 - 1, RGB565(110, 58, 20));
+    DrawLine(lx0, TIMELINE_Y0, lx1, TIMELINE_Y0, 1, RGB565(170, 210, 255));
+    DrawLine(lx0, TIMELINE_Y1, lx1, TIMELINE_Y1, 1, RGB565(170, 210, 255));
+    DrawLine(rx0, TIMELINE_Y0, rx1, TIMELINE_Y0, 1, RGB565(255, 215, 165));
+    DrawLine(rx0, TIMELINE_Y1, rx1, TIMELINE_Y1, 1, RGB565(255, 215, 165));
     ty = TIMELINE_Y0 + ((TIMELINE_Y1 - TIMELINE_Y0 - 7) / 2);
-    DrawTextUi(lx0 + 7, ty, 1, "L", RGB565(220, 220, 230));
-    DrawTextUi(rx0 + 7, ty, 1, "R", RGB565(220, 220, 230));
+    DrawTextUi(lx0 + 7, ty, 1, "L", RGB565(245, 250, 255));
+    DrawTextUi(rx0 + 7, ty, 1, "R", RGB565(255, 248, 236));
     snprintf(line, sizeof(line), "%2uH", (unsigned int)gTimelineHour);
     cx = ((TIMELINE_X0 + TIMELINE_X1) / 2) - (edgeai_text5x7_width(1, line) / 2);
     DrawTextUi(cx, ty, 1, line, RGB565(255, 208, 52));
@@ -280,6 +294,33 @@ static void DrawAiPill(const gauge_style_preset_t *style, bool ai_enabled)
     DrawTextUi(lx, ly, 1, label, txt);
 }
 
+static void DrawProfileSwitch(const gauge_style_preset_t *style, power_replay_profile_t profile)
+{
+    int32_t x0 = GAUGE_RENDER_PROFILE_X0;
+    int32_t y0 = GAUGE_RENDER_PROFILE_Y0;
+    int32_t x1 = GAUGE_RENDER_PROFILE_X1;
+    int32_t y1 = GAUGE_RENDER_PROFILE_Y1;
+    int32_t mid = (x0 + x1) / 2;
+    bool wired = (profile == POWER_REPLAY_PROFILE_WIRED);
+    uint16_t active_fill = RGB565(22, 80, 28);
+    uint16_t inactive_fill = RGB565(28, 30, 34);
+    uint16_t active_txt = RGB565(190, 255, 180);
+    uint16_t inactive_txt = RGB565(175, 182, 190);
+
+    par_lcd_s035_fill_rect(x0, y0, x1, y1, RGB565(10, 12, 16));
+    DrawLine(x0, y0, x1, y0, 1, style->palette.text_primary);
+    DrawLine(x0, y1, x1, y1, 1, style->palette.text_primary);
+    DrawLine(x0, y0, x0, y1, 1, style->palette.text_primary);
+    DrawLine(x1, y0, x1, y1, 1, style->palette.text_primary);
+    DrawLine(mid, y0 + 1, mid, y1 - 1, 1, RGB565(70, 78, 88));
+
+    par_lcd_s035_fill_rect(x0 + 1, y0 + 1, mid - 1, y1 - 1, wired ? active_fill : inactive_fill);
+    par_lcd_s035_fill_rect(mid + 1, y0 + 1, x1 - 1, y1 - 1, wired ? inactive_fill : active_fill);
+
+    DrawTextUi(x0 + 10, y0 + 2, 1, "WIRED", wired ? active_txt : inactive_txt);
+    DrawTextUi(mid + 6, y0 + 2, 1, "OUTLET", wired ? inactive_txt : active_txt);
+}
+
 static void DrawTerminalFrame(const gauge_style_preset_t *style)
 {
     par_lcd_s035_fill_rect(TERM_X, TERM_Y, TERM_X + TERM_W, TERM_Y + TERM_H, RGB565(18, 3, 7));
@@ -290,11 +331,11 @@ static void DrawTerminalFrame(const gauge_style_preset_t *style)
     DrawLine(TERM_X + 6, TERM_Y + 16, TERM_X + TERM_W - 6, TERM_Y + 16, 1, RGB565(110, 20, 30));
 }
 
-static void DrawChargeClockDynamic(const gauge_style_preset_t *style, uint32_t elapsed_sim_s)
+static void DrawChargeClockDynamic(const gauge_style_preset_t *style, uint32_t elapsed_s)
 {
-    uint32_t hh = elapsed_sim_s / 3600u;
-    uint32_t mm = (elapsed_sim_s % 3600u) / 60u;
-    uint32_t ss = elapsed_sim_s % 60u;
+    uint32_t hh = elapsed_s / 3600u;
+    uint32_t mm = (elapsed_s % 3600u) / 60u;
+    uint32_t ss = elapsed_s % 60u;
     char line[20];
     int32_t label_w = edgeai_text5x7_width(1, "ELAPSED");
     int32_t value_w;
@@ -326,7 +367,7 @@ static uint16_t AiStatusColor(const gauge_style_preset_t *style, uint8_t ai_stat
     }
     if (ai_status == AI_STATUS_WARNING)
     {
-        return RGB565(255, 186, 42);
+        return WARN_YELLOW;
     }
     return style->palette.accent_green;
 }
@@ -342,6 +383,50 @@ static const char *AiStatusText(uint8_t ai_status)
         return "WARNING";
     }
     return "NORMAL";
+}
+
+static const char *AiDecisionText(uint8_t decision)
+{
+    switch (decision)
+    {
+        case AI_DECISION_WATCH: return "WATCH";
+        case AI_DECISION_DERATE_15: return "DERATE15";
+        case AI_DECISION_DERATE_30: return "DERATE30";
+        case AI_DECISION_SHED_LOAD: return "SHEDLOAD";
+        default: return "NONE";
+    }
+}
+
+static uint8_t RuleStatus(const power_sample_t *sample);
+
+static bool IsSevereAlertCondition(const power_sample_t *sample, bool ai_enabled)
+{
+    if (!ai_enabled)
+    {
+        return RuleStatus(sample) == AI_STATUS_FAULT;
+    }
+
+    if (sample->ai_status == AI_STATUS_FAULT)
+    {
+        return true;
+    }
+    if ((sample->thermal_risk_s > 0u) && (sample->thermal_risk_s <= 180u))
+    {
+        return true;
+    }
+    if ((sample->predicted_overtemp_s > 0u) && (sample->predicted_overtemp_s <= 120u))
+    {
+        return true;
+    }
+    if (sample->ai_decision == AI_DECISION_SHED_LOAD)
+    {
+        return true;
+    }
+    if ((sample->temp_c >= 85u) || (sample->power_mW >= 12000u))
+    {
+        return true;
+    }
+    return false;
 }
 
 static uint8_t RuleStatus(const power_sample_t *sample)
@@ -413,19 +498,92 @@ static void DrawAiAlertOverlay(const gauge_style_preset_t *style, const power_sa
 {
     uint16_t color;
     int32_t tx;
-    bool flash_on;
+    bool severe;
     uint8_t status = sample->ai_status;
+    bool strict_normal;
+    bool warn_evidence = false;
     char detail[30];
 
-    par_lcd_s035_fill_rect(ALERT_X0, ALERT_Y0, ALERT_X1, ALERT_Y1, RGB565(2, 3, 5));
     if (!ai_enabled)
     {
         status = RuleStatus(sample);
     }
 
-    if ((status == AI_STATUS_NORMAL) ||
-        (ai_enabled && (status == AI_STATUS_WARNING) && (sample->ai_fault_flags == 0u) &&
-         (sample->thermal_risk_s == 0u) && (sample->degradation_drift_pct < 35u)))
+    warn_evidence = (status != AI_STATUS_NORMAL) ||
+                    (sample->ai_fault_flags != 0u) ||
+                    (sample->thermal_risk_s > 0u) ||
+                    (sample->predicted_overtemp_s > 0u) ||
+                    (sample->anomaly_score_pct >= 30u) ||
+                    (sample->ai_decision >= AI_DECISION_WATCH) ||
+                    (sample->ai_prevented_events > 0u);
+
+    if (warn_evidence)
+    {
+        gAlertWarningHold = 240u;
+    }
+    else if (gAlertWarningHold > 0u)
+    {
+        gAlertWarningHold--;
+    }
+
+    strict_normal = (status == AI_STATUS_NORMAL) &&
+                    (sample->ai_fault_flags == 0u) &&
+                    (sample->thermal_risk_s == 0u) &&
+                    (sample->predicted_overtemp_s == 0u) &&
+                    (sample->anomaly_score_pct < 10u) &&
+                    (sample->ai_decision == AI_DECISION_NONE) &&
+                    (sample->ai_prevented_events == 0u) &&
+                    (gAlertWarningHold == 0u);
+
+    if (!strict_normal)
+    {
+        status = AI_STATUS_WARNING;
+    }
+
+    severe = IsSevereAlertCondition(sample, ai_enabled);
+
+    if (status == AI_STATUS_NORMAL)
+    {
+        snprintf(detail, sizeof(detail), "SYSTEM NORMAL");
+    }
+    else
+    {
+        if (ai_enabled)
+        {
+            BuildFaultReason(sample, detail, sizeof(detail));
+        }
+        else
+        {
+            BuildRuleReason(sample, detail, sizeof(detail));
+        }
+        if ((status != AI_STATUS_NORMAL) && (strcmp(detail, "SYSTEM NORMAL") == 0))
+        {
+            snprintf(detail, sizeof(detail), "ANALYZING STARTUP");
+        }
+        if (detail[0] == '\0')
+        {
+            if (status == AI_STATUS_WARNING)
+            {
+                snprintf(detail, sizeof(detail), "ANALYZING STARTUP");
+            }
+            else
+            {
+                snprintf(detail, sizeof(detail), "CHECK POWER PATH");
+            }
+        }
+    }
+
+    if (gAlertVisualValid &&
+        (gAlertVisualStatus == status) &&
+        (gAlertVisualSevere == severe) &&
+        (gAlertVisualAiEnabled == ai_enabled) &&
+        (strcmp(gAlertVisualDetail, detail) == 0))
+    {
+        return;
+    }
+
+    par_lcd_s035_fill_rect(ALERT_X0, ALERT_Y0, ALERT_X1, ALERT_Y1, RGB565(2, 3, 5));
+    if (status == AI_STATUS_NORMAL)
     {
         color = style->palette.accent_green;
         par_lcd_s035_fill_rect(ALERT_X0 + 1, ALERT_Y0 + 1, ALERT_X1 - 1, ALERT_Y1 - 1, RGB565(6, 16, 10));
@@ -435,35 +593,27 @@ static void DrawAiAlertOverlay(const gauge_style_preset_t *style, const power_sa
         DrawLine(ALERT_X1, ALERT_Y0, ALERT_X1, ALERT_Y1, 2, color);
         tx = ALERT_X0 + ((ALERT_X1 - ALERT_X0 + 1) - edgeai_text5x7_width(2, "SYSTEM NORMAL")) / 2;
         DrawTextUi(tx, ALERT_Y0 + 12, 2, "SYSTEM NORMAL", RGB565(220, 255, 220));
-        return;
-    }
-
-    flash_on = (((gFrameCounter / 5u) & 1u) == 0u);
-    if (!flash_on)
-    {
-        return;
-    }
-
-    color = AiStatusColor(style, status);
-    par_lcd_s035_fill_rect(ALERT_X0 + 1, ALERT_Y0 + 1, ALERT_X1 - 1, ALERT_Y1 - 1, RGB565(18, 3, 7));
-    DrawLine(ALERT_X0, ALERT_Y0, ALERT_X1, ALERT_Y0, 2, color);
-    DrawLine(ALERT_X0, ALERT_Y1, ALERT_X1, ALERT_Y1, 2, color);
-    DrawLine(ALERT_X0, ALERT_Y0, ALERT_X0, ALERT_Y1, 2, color);
-    DrawLine(ALERT_X1, ALERT_Y0, ALERT_X1, ALERT_Y1, 2, color);
-
-    tx = ALERT_X0 + ((ALERT_X1 - ALERT_X0 + 1) - edgeai_text5x7_width(2, AiStatusText(status))) / 2;
-    DrawTextUi(tx, ALERT_Y0 + 8, 2, AiStatusText(status), color);
-
-    if (ai_enabled)
-    {
-        BuildFaultReason(sample, detail, sizeof(detail));
     }
     else
     {
-        BuildRuleReason(sample, detail, sizeof(detail));
+        color = severe ? ALERT_RED : AiStatusColor(style, status);
+        par_lcd_s035_fill_rect(ALERT_X0 + 1, ALERT_Y0 + 1, ALERT_X1 - 1, ALERT_Y1 - 1, RGB565(18, 3, 7));
+        DrawLine(ALERT_X0, ALERT_Y0, ALERT_X1, ALERT_Y0, 2, color);
+        DrawLine(ALERT_X0, ALERT_Y1, ALERT_X1, ALERT_Y1, 2, color);
+        DrawLine(ALERT_X0, ALERT_Y0, ALERT_X0, ALERT_Y1, 2, color);
+        DrawLine(ALERT_X1, ALERT_Y0, ALERT_X1, ALERT_Y1, 2, color);
+
+        tx = ALERT_X0 + ((ALERT_X1 - ALERT_X0 + 1) - edgeai_text5x7_width(2, AiStatusText(status))) / 2;
+        DrawTextUi(tx, ALERT_Y0 + 8, 2, AiStatusText(status), color);
+        tx = ALERT_X0 + ((ALERT_X1 - ALERT_X0 + 1) - edgeai_text5x7_width(1, detail)) / 2;
+        DrawTextUi(tx, ALERT_Y0 + 28, 1, detail, style->palette.text_primary);
     }
-    tx = ALERT_X0 + ((ALERT_X1 - ALERT_X0 + 1) - edgeai_text5x7_width(1, detail)) / 2;
-    DrawTextUi(tx, ALERT_Y0 + 28, 1, detail, style->palette.text_primary);
+
+    gAlertVisualValid = true;
+    gAlertVisualStatus = status;
+    gAlertVisualSevere = severe;
+    gAlertVisualAiEnabled = ai_enabled;
+    snprintf(gAlertVisualDetail, sizeof(gAlertVisualDetail), "%s", detail);
 }
 
 static void DrawTerminalDynamic(const gauge_style_preset_t *style, const power_sample_t *sample, uint16_t cpu_pct, bool ai_enabled)
@@ -472,58 +622,80 @@ static void DrawTerminalDynamic(const gauge_style_preset_t *style, const power_s
     uint16_t power_w = DisplayPowerW(sample);
     uint8_t status = ai_enabled ? sample->ai_status : RuleStatus(sample);
     uint16_t ai_color = ai_enabled ? AiStatusColor(style, sample->ai_status) : AiStatusColor(style, status);
+    bool severe = IsSevereAlertCondition(sample, ai_enabled);
     const char *status_text = ai_enabled ? AiStatusText(sample->ai_status) : "OFF";
     const char *sys_text = AiStatusText(status);
+    char fault_tag[6];
 
     /* Refresh header band to eliminate any persistent single-pixel artifacts. */
     par_lcd_s035_fill_rect(TERM_X + 3, TERM_Y + 3, TERM_X + TERM_W - 3, TERM_Y + 16, RGB565(6, 9, 12));
     DrawTextUi(TERM_X + 6, TERM_Y + 6, 1, "STATUS", style->palette.text_primary);
     DrawLine(TERM_X + 6, TERM_Y + 16, TERM_X + TERM_W - 6, TERM_Y + 16, 1, RGB565(110, 20, 30));
 
-    snprintf(line, sizeof(line), "CPU %2u%%", cpu_pct);
-    DrawTerminalLine(TERM_Y + 26, line, style->palette.text_primary);
+    (void)cpu_pct;
 
-    snprintf(line, sizeof(line), "AI %s", status_text);
+    fault_tag[0] = ((sample->ai_fault_flags & AI_FAULT_VOLTAGE_SAG) != 0u) ? 'V' : '-';
+    fault_tag[1] = ((sample->ai_fault_flags & AI_FAULT_CURRENT_SPIKE) != 0u) ? 'I' : '-';
+    fault_tag[2] = ((sample->ai_fault_flags & AI_FAULT_POWER_UNSTABLE) != 0u) ? 'P' : '-';
+    fault_tag[3] = '\0';
+
+    if (severe)
+    {
+        ai_color = ALERT_RED;
+    }
+
+    snprintf(line, sizeof(line), "AI %s %s", status_text, fault_tag);
+    DrawTerminalLine(TERM_Y + 26, line, ai_color);
+
+    snprintf(line, sizeof(line), "ACT %s", AiDecisionText(sample->ai_decision));
     DrawTerminalLine(TERM_Y + 42, line, ai_color);
 
-    snprintf(line, sizeof(line), "SYS %s", sys_text);
-    DrawTerminalLine(TERM_Y + 58, line, ai_color);
-
-    if (ai_enabled && (sample->thermal_risk_s > 0u))
+    if (ai_enabled)
     {
-        snprintf(line, sizeof(line), "THERM %3us", sample->thermal_risk_s);
-        DrawTerminalLine(TERM_Y + 74, line, RGB565(255, 186, 42));
+        snprintf(line, sizeof(line), "CONF %2u%% PREV %3u", sample->ai_confidence_pct, sample->ai_prevented_events);
+        DrawTerminalLine(TERM_Y + 58, line, ai_color);
     }
     else
     {
-        DrawTerminalLine(TERM_Y + 74, "THERM --", style->palette.text_secondary);
+        snprintf(line, sizeof(line), "RULE %s", sys_text);
+        DrawTerminalLine(TERM_Y + 58, line, ai_color);
     }
 
-    snprintf(line, sizeof(line), "TEMP %2uC", sample->temp_c);
+    if (ai_enabled && (sample->thermal_risk_s > 0u))
+    {
+        snprintf(line, sizeof(line), "THRM %3us OT %3us", sample->thermal_risk_s, sample->predicted_overtemp_s);
+        DrawTerminalLine(TERM_Y + 74, line, severe ? ALERT_RED : WARN_YELLOW);
+    }
+    else
+    {
+        snprintf(line, sizeof(line), "THRM --  OT %3us", sample->predicted_overtemp_s);
+        DrawTerminalLine(TERM_Y + 74, line, style->palette.text_secondary);
+    }
+
+    snprintf(line, sizeof(line), "TEMP %2uC  V %3u", sample->temp_c, sample->voltage_mV / 100u);
     DrawTerminalLine(TERM_Y + 90, line, style->palette.text_primary);
 
-    snprintf(line, sizeof(line), "SOC %2u%%", sample->soc_pct);
+    snprintf(line, sizeof(line), "CUR %u.%01uA", sample->current_mA / 1000u, (sample->current_mA % 1000u) / 100u);
     DrawTerminalLine(TERM_Y + 106, line, style->palette.text_primary);
 
-    snprintf(line, sizeof(line), "CUR %u.%01uA", sample->current_mA / 1000u, (sample->current_mA % 1000u) / 100u);
+    snprintf(line, sizeof(line), "PWR %u.%01ukW", power_w / 1000u, (power_w % 1000u) / 100u);
     DrawTerminalLine(TERM_Y + 122, line, style->palette.text_secondary);
 
-    snprintf(line, sizeof(line), "PWR %u.%01ukW", power_w / 1000u, (power_w % 1000u) / 100u);
+    snprintf(line, sizeof(line), "RISK C%2u W%2u T%2u", sample->connector_risk_pct, sample->wire_risk_pct, sample->thermal_damage_risk_pct);
     DrawTerminalLine(TERM_Y + 138, line, style->palette.text_secondary);
 
-    snprintf(line, sizeof(line), "DRIFT %2u%%", ai_enabled ? sample->degradation_drift_pct : 0u);
+    snprintf(line, sizeof(line), "ANOM %2u DRFT %2u", (uint16_t)sample->anomaly_score_pct, sample->degradation_drift_pct);
     DrawTerminalLine(TERM_Y + 154, line, ai_color);
-
-    snprintf(line, sizeof(line), "ANOM %2u%%", ai_enabled ? sample->anomaly_score_pct : 0u);
-    DrawTerminalLine(TERM_Y + 170, line, ai_color);
+    snprintf(line, sizeof(line), "SOC %2u%%", sample->soc_pct);
+    DrawTerminalLine(TERM_Y + 170, line, style->palette.text_secondary);
 }
 
 static void DrawBatteryIndicatorFrame(const gauge_style_preset_t *style)
 {
     par_lcd_s035_fill_rect(BATT_X, BATT_Y, BATT_X + BATT_W, BATT_Y + BATT_H, RGB565(8, 10, 12));
-    par_lcd_s035_fill_rect(BATT_X + BATT_W + 1, BATT_Y + 6, BATT_X + BATT_W + 5, BATT_Y + 14, style->palette.text_primary);
-    par_lcd_s035_fill_rect(BATT_X + 1, BATT_Y + 1, BATT_X + BATT_W - 1, BATT_Y + BATT_H - 1, RGB565(22, 24, 28));
-    DrawTextUi(BATT_X - 20, BATT_Y + 6, 1, "BAT", style->palette.text_secondary);
+    par_lcd_s035_fill_rect(BATT_X + BATT_W + 1, BATT_Y + 9, BATT_X + BATT_W + 5, BATT_Y + 17, style->palette.text_primary);
+    par_lcd_s035_fill_rect(BATT_X + 1, BATT_Y + 1, BATT_X + BATT_W - 1, BATT_Y + BATT_H - 1, RGB565(72, 76, 84));
+    DrawTextUi(BATT_X - 26, BATT_Y + 8, 1, "BATT", style->palette.text_secondary);
 }
 
 static void DrawBatteryIndicatorDynamic(const gauge_style_preset_t *style, uint8_t soc)
@@ -546,7 +718,7 @@ static void DrawBatteryIndicatorDynamic(const gauge_style_preset_t *style, uint8
         fill_color = RGB565(255, 180, 24);
     }
 
-    par_lcd_s035_fill_rect(inner_x0, inner_y0, inner_x0 + inner_w, inner_y0 + inner_h, RGB565(10, 12, 16));
+    par_lcd_s035_fill_rect(inner_x0, inner_y0, inner_x0 + inner_w, inner_y0 + inner_h, RGB565(82, 86, 92));
     if (fill > 0)
     {
         par_lcd_s035_fill_rect(inner_x0, inner_y0, inner_x0 + fill, inner_y0 + inner_h, fill_color);
@@ -617,11 +789,15 @@ static void DrawScopeDynamic(const gauge_style_preset_t *style, bool ai_enabled)
         DrawLine(TIMELINE_X0, TIMELINE_Y0, TIMELINE_X0, TIMELINE_Y1, 1, RGB565(130, 130, 136));
         DrawLine(TIMELINE_X1, TIMELINE_Y0, TIMELINE_X1, TIMELINE_Y1, 1, RGB565(130, 130, 136));
 
-        par_lcd_s035_fill_rect(lx0 + 1, TIMELINE_Y0 + 1, lx1 - 1, TIMELINE_Y1 - 1, RGB565(32, 36, 44));
-        par_lcd_s035_fill_rect(rx0 + 1, TIMELINE_Y0 + 1, rx1 - 1, TIMELINE_Y1 - 1, RGB565(32, 36, 44));
+        par_lcd_s035_fill_rect(lx0 + 1, TIMELINE_Y0 + 1, lx1 - 1, TIMELINE_Y1 - 1, RGB565(26, 58, 110));
+        par_lcd_s035_fill_rect(rx0 + 1, TIMELINE_Y0 + 1, rx1 - 1, TIMELINE_Y1 - 1, RGB565(110, 58, 20));
+        DrawLine(lx0, TIMELINE_Y0, lx1, TIMELINE_Y0, 1, RGB565(170, 210, 255));
+        DrawLine(lx0, TIMELINE_Y1, lx1, TIMELINE_Y1, 1, RGB565(170, 210, 255));
+        DrawLine(rx0, TIMELINE_Y0, rx1, TIMELINE_Y0, 1, RGB565(255, 215, 165));
+        DrawLine(rx0, TIMELINE_Y1, rx1, TIMELINE_Y1, 1, RGB565(255, 215, 165));
         ty = TIMELINE_Y0 + ((TIMELINE_Y1 - TIMELINE_Y0 - 7) / 2);
-        DrawTextUi(lx0 + 7, ty, 1, "L", RGB565(220, 220, 230));
-        DrawTextUi(rx0 + 7, ty, 1, "R", RGB565(220, 220, 230));
+        DrawTextUi(lx0 + 7, ty, 1, "L", RGB565(245, 250, 255));
+        DrawTextUi(rx0 + 7, ty, 1, "R", RGB565(255, 248, 236));
 
         snprintf(line, sizeof(line), "%2uH", (unsigned int)gTimelineHour);
         cx = ((TIMELINE_X0 + TIMELINE_X1) / 2) - (edgeai_text5x7_width(1, line) / 2);
@@ -658,7 +834,7 @@ static void DrawLeftBargraphFrame(const gauge_style_preset_t *style)
 static void DrawLeftBargraphDynamic(const gauge_style_preset_t *style, uint8_t temp_c)
 {
     int32_t i;
-    int32_t level = ClampI32((((int32_t)temp_c - 20) * BAR_SEGMENTS) / 60, 0, BAR_SEGMENTS);
+    int32_t level = ClampI32(((int32_t)temp_c * BAR_SEGMENTS) / 100, 0, BAR_SEGMENTS);
     int32_t inner_x0 = BAR_X0 + 3;
     int32_t inner_x1 = BAR_X1 - 3;
     int32_t inner_y0 = BAR_Y0 + 3;
@@ -724,7 +900,7 @@ static void DrawLeftBargraphDynamic(const gauge_style_preset_t *style, uint8_t t
     gPrevOverTemp = over_temp;
 }
 
-static void DrawStaticDashboard(const gauge_style_preset_t *style)
+static void DrawStaticDashboard(const gauge_style_preset_t *style, power_replay_profile_t profile)
 {
     int32_t brand_x;
 
@@ -732,6 +908,7 @@ static void DrawStaticDashboard(const gauge_style_preset_t *style)
     par_lcd_s035_fill_rect(PANEL_X0, PANEL_Y0, PANEL_X1, PANEL_Y1, RGB565(2, 3, 5));
     par_lcd_s035_fill_rect(PANEL_X0 + 4, PANEL_Y0 + 4, PANEL_X1 - 4, PANEL_Y0 + 30, RGB565(8, 10, 13));
     DrawTextUi(PANEL_X0 + 14, AI_PILL_Y0, 1, "(c)RICHARD HABERKERN", style->palette.text_secondary);
+    DrawProfileSwitch(style, profile);
 
     /* Left status bargraph aligned to the existing guide structure. */
     DrawLeftBargraphFrame(style);
@@ -772,10 +949,24 @@ static void DrawStaticDashboard(const gauge_style_preset_t *style)
     DrawAiPill(style, false);
 }
 
-static void ClearDynamicValueBands(const gauge_style_preset_t *style)
+static void ClearMainVoltageBand(void)
 {
-    par_lcd_s035_fill_rect(MAIN_CX - 40, MAIN_CY - 10, MAIN_CX + 40, MAIN_CY + 16, RGB565(138, 112, 10));
+    int32_t w = edgeai_text5x7_width(3, "000VAC");
+    int32_t x0 = MAIN_CX - (w / 2) - 3;
+    int32_t x1 = MAIN_CX + (w / 2) + 3;
+    int32_t y0 = MAIN_CY + 4;
+    int32_t y1 = MAIN_CY + 29;
+
+    par_lcd_s035_fill_rect(x0, y0, x1, y1, RGB565(138, 112, 10));
+}
+
+static void ClearCurrentBand(const gauge_style_preset_t *style)
+{
     par_lcd_s035_fill_rect(MID_TOP_CX - 24, MID_TOP_CY - 10, MID_TOP_CX + 24, MID_TOP_CY + 10, style->palette.panel_black);
+}
+
+static void ClearPowerBand(const gauge_style_preset_t *style)
+{
     par_lcd_s035_fill_rect(MID_BOT_CX - 24, MID_BOT_CY - 10, MID_BOT_CX + 24, MID_BOT_CY + 10, style->palette.panel_black);
 }
 
@@ -787,7 +978,7 @@ bool GaugeRender_Init(void)
     if (gLcdReady)
     {
         style = GaugeStyle_GetCockpitPreset();
-        DrawStaticDashboard(style);
+        DrawStaticDashboard(style, POWER_REPLAY_PROFILE_WIRED);
         gStaticReady = true;
         gDynamicReady = false;
         gPrevMainIdx = -1;
@@ -803,10 +994,13 @@ bool GaugeRender_Init(void)
         gPrevWear = 0u;
         gPrevElapsedSim = 0u;
         gPrevAiEnabled = false;
+        gPrevProfile = 255u;
         gPrevAiStatus = 255u;
         gPrevAiFaultFlags = 255u;
         gPrevThermalRisk = 65535u;
         gPrevDrift = 255u;
+        gAlertWarningHold = 0u;
+        gAlertVisualValid = false;
         gLastScopeSampleSimS = 0u;
         gTimelineTouchLatch = false;
         gTimelineHoldTicks = 0u;
@@ -816,7 +1010,7 @@ bool GaugeRender_Init(void)
     return gLcdReady;
 }
 
-void GaugeRender_DrawFrame(const power_sample_t *sample, bool ai_enabled)
+void GaugeRender_DrawFrame(const power_sample_t *sample, bool ai_enabled, power_replay_profile_t profile)
 {
     const gauge_style_preset_t *style;
     int32_t main_idx;
@@ -825,7 +1019,6 @@ void GaugeRender_DrawFrame(const power_sample_t *sample, bool ai_enabled)
     uint16_t cpu_pct;
     uint16_t status_color;
     bool scope_advanced = false;
-    bool value_bands_cleared = false;
     bool main_face_refreshed = false;
     uint16_t power_w;
     char line[32];
@@ -840,7 +1033,7 @@ void GaugeRender_DrawFrame(const power_sample_t *sample, bool ai_enabled)
 
     if (!gStaticReady)
     {
-        DrawStaticDashboard(style);
+        DrawStaticDashboard(style, profile);
         gStaticReady = true;
         gDynamicReady = false;
         gPrevMainIdx = -1;
@@ -853,10 +1046,12 @@ void GaugeRender_DrawFrame(const power_sample_t *sample, bool ai_enabled)
         gPrevWear = 0u;
         gPrevElapsedSim = 0u;
         gPrevAiEnabled = false;
+        gPrevProfile = 255u;
         gPrevAiStatus = 255u;
         gPrevAiFaultFlags = 255u;
         gPrevThermalRisk = 65535u;
         gPrevDrift = 255u;
+        gAlertVisualValid = false;
     }
 
     main_idx = ClampI32(((int32_t)sample->voltage_mV - 20000) / 420, 0, 12);
@@ -874,6 +1069,12 @@ void GaugeRender_DrawFrame(const power_sample_t *sample, bool ai_enabled)
         ((sample->elapsed_charge_sim_s - gLastScopeSampleSimS) >= SCOPE_BUCKET_SECONDS))
     {
         uint16_t cap = (uint16_t)sizeof(gTracePower);
+        if (sample->elapsed_charge_sim_s < gLastScopeSampleSimS)
+        {
+            /* Timeline rewind/start-over: clear prior history so selected hour is fresh. */
+            gTraceCount = 0u;
+            gTraceReady = false;
+        }
         if (gTraceCount < cap)
         {
             gTracePower[gTraceCount] = ScaleTo8(power_w, 14000u);
@@ -938,37 +1139,36 @@ void GaugeRender_DrawFrame(const power_sample_t *sample, bool ai_enabled)
     {
         DrawScopeDynamic(style, ai_enabled);
     }
-    par_lcd_s035_fill_rect(TERM_X, SCOPE_Y + SCOPE_H + 1, TERM_X + TERM_W, TERM_Y - 1, RGB565(2, 3, 5));
-    DrawTextUi(SCOPE_X + 8, SCOPE_Y + SCOPE_H + 1, 1, "PWR", RGB565(255, 170, 32));
-    DrawTextUi(SCOPE_X + SCOPE_W - 8 - edgeai_text5x7_width(1, "TEMP"), SCOPE_Y + SCOPE_H + 1, 1, "TEMP", RGB565(48, 160, 255));
+    if (scope_advanced || !gDynamicReady)
+    {
+        par_lcd_s035_fill_rect(TERM_X, SCOPE_Y + SCOPE_H + 1, TERM_X + TERM_W, TERM_Y - 1, RGB565(2, 3, 5));
+        DrawTextUi(SCOPE_X + 8, SCOPE_Y + SCOPE_H + 1, 1, "PWR", RGB565(255, 170, 32));
+        DrawTextUi(SCOPE_X + SCOPE_W - 8 - edgeai_text5x7_width(1, "TEMP"), SCOPE_Y + SCOPE_H + 1, 1, "TEMP", RGB565(48, 160, 255));
+    }
     DrawLeftBargraphDynamic(style, sample->temp_c);
     DrawAiAlertOverlay(style, sample, ai_enabled);
     status_color = (ai_enabled ? AiStatusColor(style, sample->ai_status) : style->palette.text_primary);
 
-    if (!gDynamicReady || gPrevCurrent != sample->current_mA || gPrevPower != power_w ||
-        gPrevVoltage != sample->voltage_mV || gPrevSoc != sample->soc_pct)
-    {
-        ClearDynamicValueBands(style);
-        value_bands_cleared = true;
-    }
-
-    if (!gDynamicReady || gPrevVoltage != sample->voltage_mV || main_face_refreshed || value_bands_cleared)
+    if (!gDynamicReady || gPrevVoltage != sample->voltage_mV || main_face_refreshed)
     {
         int32_t x;
         snprintf(line, sizeof(line), "%uVAC", sample->voltage_mV / 100u);
+        ClearMainVoltageBand();
         x = MAIN_CX - (edgeai_text5x7_width(3, line) / 2);
         DrawTextUi(x, MAIN_CY + 5, 3, line, status_color);
     }
 
-    if (!gDynamicReady || gPrevCurrent != sample->current_mA || value_bands_cleared)
+    if (!gDynamicReady || gPrevCurrent != sample->current_mA)
     {
+        ClearCurrentBand(style);
         snprintf(line, sizeof(line), "%u.%01u", sample->current_mA / 1000u, (sample->current_mA % 1000u) / 100u);
         DrawTextUi(MID_TOP_CX - 20, MID_TOP_CY - 8, 2, line, status_color);
     }
 
-    if (!gDynamicReady || gPrevPower != power_w || value_bands_cleared)
+    if (!gDynamicReady || gPrevPower != power_w)
     {
         int32_t x;
+        ClearPowerBand(style);
         snprintf(line, sizeof(line), "%u.%01u", power_w / 1000u, (power_w % 1000u) / 100u);
         x = MID_BOT_CX - (edgeai_text5x7_width(2, line) / 2);
         DrawTextUi(x, MID_BOT_CY - 8, 2, line, status_color);
@@ -993,9 +1193,14 @@ void GaugeRender_DrawFrame(const power_sample_t *sample, bool ai_enabled)
     {
         DrawAiPill(style, ai_enabled);
     }
-    if ((!gDynamicReady) || (sample->elapsed_charge_sim_s != gPrevElapsedSim))
+    if (gPrevProfile != (uint8_t)profile)
     {
-        DrawChargeClockDynamic(style, sample->elapsed_charge_sim_s);
+        DrawProfileSwitch(style, profile);
+    }
+    /* Redraw elapsed clock only when value changes or gauge-face redraw may have overdrawn it. */
+    if ((!gDynamicReady) || (sample->elapsed_charge_s != gPrevElapsedSim) || main_face_refreshed)
+    {
+        DrawChargeClockDynamic(style, sample->elapsed_charge_s);
     }
 
     gPrevCurrent = sample->current_mA;
@@ -1010,8 +1215,9 @@ void GaugeRender_DrawFrame(const power_sample_t *sample, bool ai_enabled)
     gPrevAiFaultFlags = sample->ai_fault_flags;
     gPrevThermalRisk = sample->thermal_risk_s;
     gPrevDrift = sample->degradation_drift_pct;
-    gPrevElapsedSim = sample->elapsed_charge_sim_s;
+    gPrevElapsedSim = sample->elapsed_charge_s;
     gPrevAiEnabled = ai_enabled;
+    gPrevProfile = (uint8_t)profile;
     (void)gTraceReady;
 }
 
@@ -1045,7 +1251,7 @@ bool GaugeRender_HandleTouch(int32_t x, int32_t y, bool pressed)
         gTimelineTouchLatch = true;
         gTimelineHoldDir = dir;
         gTimelineHoldTicks = 0u;
-        if ((dir < 0) && (gTimelineHour > 0u))
+        if ((dir < 0) && (gTimelineHour > 1u))
         {
             gTimelineHour--;
             changed = true;
@@ -1066,7 +1272,7 @@ bool GaugeRender_HandleTouch(int32_t x, int32_t y, bool pressed)
         if (gTimelineHoldTicks >= 8u)
         {
             gTimelineHoldTicks = 6u;
-            if ((dir < 0) && (gTimelineHour > 0u))
+            if ((dir < 0) && (gTimelineHour > 1u))
             {
                 gTimelineHour--;
                 changed = true;

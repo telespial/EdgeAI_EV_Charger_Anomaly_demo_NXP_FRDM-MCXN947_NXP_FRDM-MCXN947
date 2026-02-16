@@ -1,13 +1,16 @@
 # Hardware Setup
 
-Board:
+## Target
 - NXP FRDM-MCXN947
 
-Connections:
-- Debug USB: J17
-- Optional display: LCD-PAR-S035 on J8
-- EV charger sensing interface: TBD during feature integration
+## Display/Touch
+- LCD-PAR-S035 (parallel LCD)
+- GT911 touch controller over LPI2C2 / FLEXCOMM2
 
-Probe:
-- MCU-Link CMSIS-DAP
-- LinkServer probe index is typically `#1`
+## Debug/Flash
+- Debug USB (MCU-Link CMSIS-DAP)
+- LinkServer runner via West
+
+## Runtime Source
+- Default: replay/sim telemetry
+- Optional: live telemetry integration path

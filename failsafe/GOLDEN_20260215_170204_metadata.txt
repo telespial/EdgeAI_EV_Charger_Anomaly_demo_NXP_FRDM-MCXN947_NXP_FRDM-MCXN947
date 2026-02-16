@@ -1,0 +1,7 @@
+golden_id: GOLDEN_20260215_170204
+project: EdgeAI_EV_Charger_Anomaly_demo_NXP_FRDM-MCXN947
+artifact_bin: failsafe/edgeai_ev_charger_anomaly_demo_cm33_core0_GOLDEN_20260215_170204.bin
+artifact_sha256: failsafe/edgeai_ev_charger_anomaly_demo_cm33_core0_GOLDEN_20260215_170204.sha256
+build_dir: mcuxsdk_ws/mcuxsdk_ws/build_anomaly
+note: Final golden + failsafe baseline snapshot
+created_utc: 2026-02-15T17:02:04Z

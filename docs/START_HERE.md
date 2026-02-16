@@ -2,21 +2,24 @@
 
 Read in order:
 1. `AGENTS.md`
-2. `docs/PROJECT_STATE.md`
-3. `docs/OPS_RUNBOOK.md`
-4. `docs/HARDWARE_SETUP.md`
-5. `docs/BUILD_FLASH.md`
-6. `docs/RESTORE_POINTS.md`
-7. `docs/COMMAND_LOG.md`
-8. `docs/TODO.md`
+2. `README.md`
+3. `docs/PROJECT_STATE.md`
+4. `docs/OPS_RUNBOOK.md`
+5. `docs/HARDWARE_SETUP.md`
+6. `docs/BUILD_FLASH.md`
+7. `docs/TEST_DATA_PIPELINE.md`
+8. `docs/CAPTURE_MODE.md`
+9. `docs/RESTORE_POINTS.md`
+10. `docs/COMMAND_LOG.md`
+11. `docs/TODO.md`
 
-Current baseline:
-- Golden tag: `GOLDEN_20260215_053739`
-- Lock tag: `GOLDEN_LOCK_20260215_053739`
-- Failsafe: `failsafe/edgeai_ev_charger_monitor_demo_cm33_core0_GOLDEN_20260215_053739.bin`
+## Current Baseline
+- Project: `EdgeAI_EV_Charger_Anomaly_demo_NXP_FRDM-MCXN947`
+- Hardware: FRDM-MCXN947 + LCD-PAR-S035
+- Runtime: replay telemetry @20 Hz + on-device AI decision logic
+- UI: touch AI toggle, hour timeline buttons, profile switch (`WIRED|OUTLET`)
 
-Primary objective:
-- implement stable EV charger monitor sensing, state model, and UI loop on FRDM-MCXN947.
-
-Known blocker at this baseline:
-- Touchscreen AI on/off pill is still unreliable on target hardware and requires follow-up calibration/debug.
+## Clarification
+- AI decisions are real runtime firmware behavior.
+- Default input stream is replay/simulated telemetry.
+- This is a high-quality demo/prototype baseline, not a certified safety product.

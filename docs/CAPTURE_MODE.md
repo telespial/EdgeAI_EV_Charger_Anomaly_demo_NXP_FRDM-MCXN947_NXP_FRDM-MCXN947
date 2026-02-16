@@ -1,55 +1,30 @@
-# Capture Mode (Real Energy Data)
+# Capture Mode (Live Telemetry Path)
 
-Goal:
-- collect real current/power traces from the dev board using MCUX energy measurement tooling,
-- convert traces into replay data for standalone dashboard mode.
+## Goal
+Collect real voltage/current/temperature telemetry and feed the same AI pipeline used in replay mode.
 
-## Prerequisites
-- FRDM-MCXN947 connected on debug USB.
-- UART available (default `/dev/ttyACM0`).
-- MCUX energy capture CLI command installed.
-  - If command is not `mcux_energy_capture`, set `ENERGY_CAPTURE_CMD`.
+## Current State
+- Default mode: replay/simulated telemetry
+- Live telemetry path: scaffolded tooling, not default runtime mode
 
-## 1) Capture energy + UART markers
+## Tools
+- `tools/capture_energy_trace.sh`
+- `tools/capture_uart_telemetry.sh`
+- `tools/trace_convert.py`
+
+## Example
 ```bash
 ./tools/capture_energy_trace.sh --duration 120
-```
-
-If required, override command template:
-```bash
-ENERGY_CAPTURE_CMD="your_energy_cli --duration {DURATION} --output {OUTPUT}" \
-./tools/capture_energy_trace.sh --duration 120
-```
-
-Outputs:
-- `captures/energy_capture_<timestamp>.csv`
-- `captures/energy_capture_<timestamp>_uart.log`
-- `captures/energy_capture_<timestamp>_scenes.log`
-
-## 1b) Capture direct firmware telemetry CSV (no MCUX energy CLI)
-If firmware is running `real_telemetry` mode, capture UART output directly:
-
-```bash
 ./tools/capture_uart_telemetry.sh --uart /dev/ttyACM0 --duration 60
 ```
 
-Output:
-- `captures/uart_telemetry_<timestamp>.csv`
-
-## 2) Convert energy CSV to replay CSV
+## Convert To Replay CSV
 ```bash
 python3 tools/trace_convert.py \
   --energy-csv captures/energy_capture_<timestamp>.csv \
   --out-csv data/replay_trace.csv
 ```
 
-## 3) Regenerate firmware trace header
-```bash
-./tools/trace_csv_to_header.py --in data/replay_trace.csv --out src/replay_trace_generated.h
-```
-
-## 4) Rebuild + flash
-```bash
-./tools/build_frdmmcxn947.sh debug
-./tools/flash_frdmmcxn947.sh
-```
+## Integration Direction
+- Replace replay sample generation with live sensor ingestion.
+- Keep the same decision model contract (`power_sample_t` + `UpdateAiModel`).

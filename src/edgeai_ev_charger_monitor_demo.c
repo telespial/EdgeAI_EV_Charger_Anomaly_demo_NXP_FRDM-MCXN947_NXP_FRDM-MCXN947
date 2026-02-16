@@ -240,6 +240,12 @@ static bool TouchInAiPill(int32_t x, int32_t y)
            (y >= GAUGE_RENDER_AI_PILL_Y0) && (y <= GAUGE_RENDER_AI_PILL_Y1);
 }
 
+static bool TouchInProfileSwitch(int32_t x, int32_t y)
+{
+    return (x >= GAUGE_RENDER_PROFILE_X0) && (x <= GAUGE_RENDER_PROFILE_X1) &&
+           (y >= GAUGE_RENDER_PROFILE_Y0) && (y <= GAUGE_RENDER_PROFILE_Y1);
+}
+
 int main(void)
 {
     bool ai_enabled = true;
@@ -254,13 +260,14 @@ int main(void)
     PRINTF("EV dash LCD: %s\r\n", lcd_ok ? "ready" : "init_failed");
 
     PowerData_Init();
+    PowerData_SetAiAssistEnabled(ai_enabled);
     TouchInit();
     PowerData_SetReplayHour(GaugeRender_GetTimelineHour());
 
     sample = PowerData_Get();
     if (lcd_ok && (sample != NULL))
     {
-        GaugeRender_DrawFrame(sample, ai_enabled);
+        GaugeRender_DrawFrame(sample, ai_enabled, PowerData_GetReplayProfile());
     }
 
     PRINTF("EV dash app ready\r\n");
@@ -271,21 +278,34 @@ int main(void)
         int32_t ty = 0;
         bool pressed = TouchGetPoint(&tx, &ty);
         bool in_pill = pressed && TouchInAiPill(tx, ty);
+        bool in_profile = pressed && TouchInProfileSwitch(tx, ty);
         bool timeline_changed = GaugeRender_HandleTouch(tx, ty, pressed);
 
         if (in_pill && !s_touch_was_down)
         {
             ai_enabled = !ai_enabled;
+            PowerData_SetAiAssistEnabled(ai_enabled);
             PRINTF("AI_TOGGLE,%s\r\n", ai_enabled ? "ON" : "OFF");
             if (lcd_ok)
             {
-                GaugeRender_DrawFrame(PowerData_Get(), ai_enabled);
+                GaugeRender_DrawFrame(PowerData_Get(), ai_enabled, PowerData_GetReplayProfile());
+            }
+        }
+        if (in_profile && !s_touch_was_down)
+        {
+            int32_t mid = (GAUGE_RENDER_PROFILE_X0 + GAUGE_RENDER_PROFILE_X1) / 2;
+            power_replay_profile_t profile = (tx <= mid) ? POWER_REPLAY_PROFILE_WIRED : POWER_REPLAY_PROFILE_OUTLET;
+            PowerData_SetReplayProfile(profile);
+            PRINTF("PROFILE,%s\r\n", (profile == POWER_REPLAY_PROFILE_WIRED) ? "WIRED" : "OUTLET");
+            if (lcd_ok)
+            {
+                GaugeRender_DrawFrame(PowerData_Get(), ai_enabled, profile);
             }
         }
         if (timeline_changed && lcd_ok)
         {
             PowerData_SetReplayHour(GaugeRender_GetTimelineHour());
-            GaugeRender_DrawFrame(PowerData_Get(), ai_enabled);
+            GaugeRender_DrawFrame(PowerData_Get(), ai_enabled, PowerData_GetReplayProfile());
         }
         s_touch_was_down = pressed;
 
@@ -301,7 +321,7 @@ int main(void)
         if (lcd_ok && (render_tick_accum_us >= DISPLAY_REFRESH_PERIOD_US))
         {
             render_tick_accum_us = 0u;
-            GaugeRender_DrawFrame(PowerData_Get(), ai_enabled);
+            GaugeRender_DrawFrame(PowerData_Get(), ai_enabled, PowerData_GetReplayProfile());
         }
 
         SDK_DelayAtLeastUs(TOUCH_POLL_DELAY_US, CLOCK_GetCoreSysClkFreq());

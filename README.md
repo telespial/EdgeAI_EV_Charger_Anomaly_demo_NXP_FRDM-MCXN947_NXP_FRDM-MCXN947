@@ -1,45 +1,100 @@
-# EdgeAI EV Charger Monitor Demo (FRDM-MCXN947)
+# EdgeAI EV Charger Anomaly Demo (FRDM-MCXN947)
 
-This repository is a standalone firmware project scaffold for an EV charger monitor demo on NXP FRDM-MCXN947.
+Edge AI anomaly-detection and decision demo for EV charging telemetry on **FRDM-MCXN947 + LCD-PAR-S035**.
 
-Target hardware:
-- FRDM-MCXN947
-- LCD-PAR-S035 display (optional UI)
-- EV charger input sensing hardware (project-specific integration pending)
+## What This Project Does
+- Runs a real-time on-device AI decision pipeline over charging telemetry.
+- Visualizes charger state with analog gauges, timeline graph, warning bar, and touch controls.
+- Demonstrates two realistic 12-hour charging profiles (`WIRED` and `OUTLET`) at 20 Hz.
+- Supports hourly playback navigation (`1H`..`12H`) and profile switching in UI.
 
-## Project Status
-- 12-minute, 20 Hz EV charging profiles are in place (`normal`, `wear`, `fault`).
-- Runtime includes elapsed charge clock + connector-wear anomaly scoring for demo AI behavior.
-- Cockpit LCD dashboard is implemented and hardware flash-validated.
-- Golden restore point is established:
-  - `GOLDEN_20260214_203015`
-  - `GOLDEN_LOCK_20260214_203015_22b87ce`
-  - failsafe binary in `failsafe/`.
+## What This Project Is Not
+- Not a certified EVSE controller.
+- Not a production safety product.
+- Default data source is replay/simulated telemetry (live integration path is scaffolded but not default).
 
-## Quickstart
+## How The AI Works (Specific)
+AI logic lives in `src/power_data_source.c` (`UpdateAiModel`).
+
+### 1) Input Features (20 Hz)
+Per sample:
+- Voltage (`voltage_mV`)
+- Current (`current_mA`)
+- Power (`power_mW`)
+- Temperature (`temp_c`)
+
+Derived online features:
+- EMA voltage/current/power/temp
+- Current step (`di`), power step (`dp`)
+- Power residual vs expected (`P_measured - V*I`)
+- Thermal slope and estimated thermal risk horizon
+- Connector/wire thermal accumulation and wear trend
+- Drift metric (actual thermal response vs expected thermal model)
+
+### 2) Fault/Anomaly Signals
+The model evaluates:
+- `AI_FAULT_VOLTAGE_SAG`
+- `AI_FAULT_CURRENT_SPIKE`
+- `AI_FAULT_POWER_UNSTABLE`
+
+It computes:
+- `anomaly_score_pct`
+- `thermal_risk_s`
+- `predicted_overtemp_s`
+- `connector_risk_pct`
+- `wire_risk_pct`
+- `thermal_damage_risk_pct`
+
+### 3) Status Classification
+AI status transitions:
+- `NORMAL`
+- `WARNING`
+- `FAULT`
+
+Using threshold logic + hold/latch behavior:
+- warning/fault hold timers reduce flicker and status bounce
+- startup/low-current guardrails suppress false instability at idle
+
+### 4) Decision Layer
+When AI assist is enabled:
+- `WATCH`
+- `DERATE_15`
+- `DERATE_30`
+- `SHED_LOAD`
+
+Decision is based on anomaly severity, thermal trend/risk horizon, and fault combinations.
+Decision output adjusts modeled current/power/thermal trajectory and records preventive events.
+
+### 5) UI Rendering Contract
+- Gauge text updates only when each gauge value changes.
+- Warning bar redraws only when rendered warning state changes.
+- Timeline/scope updates are change-driven to reduce raster flash.
+
+## Replay Profiles
+- `WIRED`: hardwired wall-connector style higher current, lower sag.
+- `OUTLET`: outlet-style lower current with increased sag/thermal stress.
+
+`1H` startup behavior:
+- `0:00-2:00` handshake/idle (`0 A`, room temp)
+- `2:00-12:00` staged startup tests with visible current pulses
+- then ramp to full charge behavior
+
+## Build And Flash
 ```bash
 ./tools/bootstrap_ubuntu_user.sh
 ./tools/setup_mcuxsdk_ws.sh
-./tools/build_frdmmcxn947.sh debug
-./tools/flash_frdmmcxn947.sh
+BUILD_DIR=mcuxsdk_ws/build_anomaly ./tools/build_frdmmcxn947.sh debug
+BUILD_DIR=mcuxsdk_ws/build_anomaly ./tools/flash_frdmmcxn947.sh
 ```
 
-## Repo Layout
-- `src/`: project firmware sources
-- `sdk_example/`: MCUX SDK examples overlay
-- `tools/`: setup/build/flash scripts
-- `docs/`: project state, runbook, restore points, and logs
+## Restore / Failsafe
+Latest golden/failsafe restore info is tracked in:
+- `docs/RESTORE_POINTS.md`
+- `docs/failsafe.md`
 
-Style references:
-- `docs/GAUGE_STYLE.md`
-- `src/gauge_style.h`
-
-Test-data references:
-- `docs/TEST_DATA_PIPELINE.md`
-- `src/power_data_source.h`
-
-Real capture references:
-- `docs/CAPTURE_MODE.md`
-- `tools/capture_energy_trace.sh`
-- `tools/capture_uart_telemetry.sh`
-- `tools/trace_convert.py`
+## Repository Layout
+- `src/` firmware source
+- `docs/` runbooks/state/restore docs
+- `tools/` setup/build/flash utilities
+- `data/` replay CSV assets
+- `failsafe/` golden restore binaries + checksum + metadata
