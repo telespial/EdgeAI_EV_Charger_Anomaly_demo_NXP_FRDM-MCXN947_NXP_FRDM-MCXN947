@@ -2,6 +2,9 @@
 
 Edge AI anomaly-detection and decision demo for EV charging telemetry on **FRDM-MCXN947 + LCD-PAR-S035**.
 
+![EV_charger_monitor](https://github.com/user-attachments/assets/a411539e-43e5-44ff-acb8-0f39ce5a6ef2)
+
+
 ## What This Project Does
 - Runs a real-time on-device AI decision pipeline over charging telemetry.
 - Visualizes charger state with analog gauges, timeline graph, warning bar, and touch controls.
