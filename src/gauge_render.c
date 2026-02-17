@@ -43,7 +43,7 @@ static bool gAlertVisualSevere = false;
 static bool gAlertVisualAiEnabled = false;
 static char gAlertVisualDetail[30];
 static uint32_t gLastScopeSampleSimS = 0u;
-static uint8_t gTimelineHour = 3u;
+static uint8_t gTimelineHour = 1u;
 static bool gTimelineTouchLatch = false;
 static uint8_t gTimelineHoldTicks = 0u;
 static int8_t gTimelineHoldDir = 0;
@@ -466,7 +466,7 @@ static void BuildRuleReason(const power_sample_t *sample, char *out, size_t out_
     }
 }
 
-static void BuildFaultReason(const power_sample_t *sample, char *out, size_t out_len)
+static void BuildFaultReason(const power_sample_t *sample, power_replay_profile_t profile, char *out, size_t out_len)
 {
     if ((sample->ai_fault_flags & AI_FAULT_VOLTAGE_SAG) != 0u)
     {
@@ -482,19 +482,20 @@ static void BuildFaultReason(const power_sample_t *sample, char *out, size_t out
     }
     else if (sample->thermal_risk_s > 0u)
     {
-        snprintf(out, out_len, "THERMAL RISK IN %us", sample->thermal_risk_s);
+        snprintf(out, out_len, "THERMAL RISK %us", sample->thermal_risk_s);
     }
-    else if (sample->degradation_drift_pct >= 35u)
+    else if ((profile == POWER_REPLAY_PROFILE_OUTLET) && (sample->degradation_drift_pct >= 35u))
     {
         snprintf(out, out_len, "CONNECTOR DRIFT");
     }
     else
     {
-        snprintf(out, out_len, "SYSTEM NORMAL");
+        /* Keep AI warning detail in the approved list only. */
+        snprintf(out, out_len, "POWER UNSTABLE");
     }
 }
 
-static void DrawAiAlertOverlay(const gauge_style_preset_t *style, const power_sample_t *sample, bool ai_enabled)
+static void DrawAiAlertOverlay(const gauge_style_preset_t *style, const power_sample_t *sample, bool ai_enabled, power_replay_profile_t profile)
 {
     uint16_t color;
     int32_t tx;
@@ -550,25 +551,31 @@ static void DrawAiAlertOverlay(const gauge_style_preset_t *style, const power_sa
     {
         if (ai_enabled)
         {
-            BuildFaultReason(sample, detail, sizeof(detail));
+            BuildFaultReason(sample, profile, detail, sizeof(detail));
         }
         else
         {
             BuildRuleReason(sample, detail, sizeof(detail));
+            if (strcmp(detail, "SYSTEM NORMAL") != 0)
+            {
+                char tmp[30];
+                snprintf(tmp, sizeof(tmp), "RULE %s", detail);
+                snprintf(detail, sizeof(detail), "%s", tmp);
+            }
         }
         if ((status != AI_STATUS_NORMAL) && (strcmp(detail, "SYSTEM NORMAL") == 0))
         {
-            snprintf(detail, sizeof(detail), "ANALYZING STARTUP");
+            snprintf(detail, sizeof(detail), ai_enabled ? "POWER UNSTABLE" : "RULE Analyzing....");
         }
         if (detail[0] == '\0')
         {
             if (status == AI_STATUS_WARNING)
             {
-                snprintf(detail, sizeof(detail), "ANALYZING STARTUP");
+                snprintf(detail, sizeof(detail), ai_enabled ? "POWER UNSTABLE" : "RULE Analyzing....");
             }
             else
             {
-                snprintf(detail, sizeof(detail), "CHECK POWER PATH");
+                snprintf(detail, sizeof(detail), ai_enabled ? "POWER UNSTABLE" : "RULE Fault Check");
             }
         }
     }
@@ -596,6 +603,7 @@ static void DrawAiAlertOverlay(const gauge_style_preset_t *style, const power_sa
     }
     else
     {
+        const char *banner = AiStatusText(status);
         color = severe ? ALERT_RED : AiStatusColor(style, status);
         par_lcd_s035_fill_rect(ALERT_X0 + 1, ALERT_Y0 + 1, ALERT_X1 - 1, ALERT_Y1 - 1, RGB565(18, 3, 7));
         DrawLine(ALERT_X0, ALERT_Y0, ALERT_X1, ALERT_Y0, 2, color);
@@ -603,8 +611,13 @@ static void DrawAiAlertOverlay(const gauge_style_preset_t *style, const power_sa
         DrawLine(ALERT_X0, ALERT_Y0, ALERT_X0, ALERT_Y1, 2, color);
         DrawLine(ALERT_X1, ALERT_Y0, ALERT_X1, ALERT_Y1, 2, color);
 
-        tx = ALERT_X0 + ((ALERT_X1 - ALERT_X0 + 1) - edgeai_text5x7_width(2, AiStatusText(status))) / 2;
-        DrawTextUi(tx, ALERT_Y0 + 8, 2, AiStatusText(status), color);
+        if (status == AI_STATUS_WARNING)
+        {
+            banner = ai_enabled ? "EDGEAI WARNING" : "ALGO WARNING";
+        }
+
+        tx = ALERT_X0 + ((ALERT_X1 - ALERT_X0 + 1) - edgeai_text5x7_width(2, banner)) / 2;
+        DrawTextUi(tx, ALERT_Y0 + 8, 2, banner, color);
         tx = ALERT_X0 + ((ALERT_X1 - ALERT_X0 + 1) - edgeai_text5x7_width(1, detail)) / 2;
         DrawTextUi(tx, ALERT_Y0 + 28, 1, detail, style->palette.text_primary);
     }
@@ -1005,7 +1018,7 @@ bool GaugeRender_Init(void)
         gTimelineTouchLatch = false;
         gTimelineHoldTicks = 0u;
         gTimelineHoldDir = 0;
-        gTimelineHour = 3u;
+        gTimelineHour = 1u;
     }
     return gLcdReady;
 }
@@ -1146,7 +1159,7 @@ void GaugeRender_DrawFrame(const power_sample_t *sample, bool ai_enabled, power_
         DrawTextUi(SCOPE_X + SCOPE_W - 8 - edgeai_text5x7_width(1, "TEMP"), SCOPE_Y + SCOPE_H + 1, 1, "TEMP", RGB565(48, 160, 255));
     }
     DrawLeftBargraphDynamic(style, sample->temp_c);
-    DrawAiAlertOverlay(style, sample, ai_enabled);
+    DrawAiAlertOverlay(style, sample, ai_enabled, profile);
     status_color = (ai_enabled ? AiStatusColor(style, sample->ai_status) : style->palette.text_primary);
 
     if (!gDynamicReady || gPrevVoltage != sample->voltage_mV || main_face_refreshed)

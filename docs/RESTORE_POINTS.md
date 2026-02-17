@@ -3,15 +3,15 @@
 ## Active Restore Point (Golden + Failsafe)
 - Project: `EdgeAI_EV_Charger_Anomaly_demo_NXP_FRDM-MCXN947`
 - Status: **FINAL GOLDEN** and **ACTIVE FAILSAFE**
-- Golden ID: `GOLDEN_20260215_170204`
-- Binary: `failsafe/edgeai_ev_charger_anomaly_demo_cm33_core0_GOLDEN_20260215_170204.bin`
-- Checksum: `failsafe/edgeai_ev_charger_anomaly_demo_cm33_core0_GOLDEN_20260215_170204.sha256`
-- Metadata: `failsafe/GOLDEN_20260215_170204_metadata.txt`
+- Golden ID: `GOLDEN_20260217_085851`
+- Binary: `failsafe/edgeai_ev_charger_anomaly_demo_cm33_core0_GOLDEN_20260217_085851.bin`
+- Checksum: `failsafe/edgeai_ev_charger_anomaly_demo_cm33_core0_GOLDEN_20260217_085851.sha256`
+- Metadata: `failsafe/GOLDEN_20260217_085851_metadata.txt`
 
 ## Restore Command
 ```bash
 LinkServer flash --probe '#1' --update-mode none MCXN947:FRDM-MCXN947 \
-  load --addr 0x0 failsafe/edgeai_ev_charger_anomaly_demo_cm33_core0_GOLDEN_20260215_170204.bin
+  load --addr 0x0 failsafe/edgeai_ev_charger_anomaly_demo_cm33_core0_GOLDEN_20260217_085851.bin
 ```
 
 ## Post-Restore Verification

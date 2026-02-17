@@ -19,8 +19,8 @@ Legacy CSV/header flow is still available:
 - `src/replay_trace_generated.h`
 
 ## Startup Behavior in `1H`
-- 0-2 min: idle/handshake at room temp, 0 A
-- 2-12 min: staged startup testing with visible current pulses
+- 0-30 sec: idle/handshake at room temp, 0 A
+- 0:30-10:30 min: staged startup testing with visible current pulses
 - then transition to charge ramp and bulk profile behavior
 
 ## Verify Workflow

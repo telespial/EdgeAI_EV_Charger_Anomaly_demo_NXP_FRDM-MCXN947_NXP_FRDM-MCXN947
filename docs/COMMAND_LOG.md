@@ -329,3 +329,4 @@ Format:
 - 2026-02-15 17:02:04 | docs refresh (README + docs/*.md + STATUS.md) | standardized Anomaly project naming and documented AI pipeline details for GitHub landing page
 - 2026-02-15 17:02:04 | create failsafe package from mcuxsdk_ws/mcuxsdk_ws/build_anomaly/edgeai_ev_charger_monitor_demo_cm33_core0.bin | created `GOLDEN_20260215_170204` as final golden + failsafe checkpoint
 - 2026-02-15 17:02:04 | update docs/RESTORE_POINTS.md + docs/failsafe.md | set active restore target to `edgeai_ev_charger_anomaly_demo_cm33_core0_GOLDEN_20260215_170204.bin`
+- 2026-02-17 08:58:51 | package failsafe binary + update restore docs | set GOLDEN_20260217_085851 as active golden and failsafe baseline

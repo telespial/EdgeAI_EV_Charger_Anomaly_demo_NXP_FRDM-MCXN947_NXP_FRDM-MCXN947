@@ -1,46 +1,45 @@
 # EdgeAI EV Charger Anomaly Demo (FRDM-MCXN947)
 
-Edge AI anomaly-detection and decision demo for EV charging telemetry on **FRDM-MCXN947 + LCD-PAR-S035**.
+Edge AI EV charging anomaly and mitigation demo for **FRDM-MCXN947 + LCD-PAR-S035**.
 
 ![EV_charger_monitor](https://github.com/user-attachments/assets/a411539e-43e5-44ff-acb8-0f39ce5a6ef2)
 
+## Scope
+- Runs a real-time on-device anomaly engine at `20 Hz` (`50 ms` sample period).
+- Shows charger state on gauges, timeline plot, status terminal, and warning banner.
+- Replays realistic `12-hour` charging sessions with touch-selectable `WIRED` and `OUTLET` profiles.
+- Supports timeline hour stepping (`1H`..`12H`) with looped playback inside the selected hour.
 
-## What This Project Does
-- Runs a real-time on-device AI decision pipeline over charging telemetry.
-- Visualizes charger state with analog gauges, timeline graph, warning bar, and touch controls.
-- Demonstrates two realistic 12-hour charging profiles (`WIRED` and `OUTLET`) at 20 Hz.
-- Supports hourly playback navigation (`1H`..`12H`) and profile switching in UI.
+## Safety And Product Status
+- This is a demo/reference implementation.
+- This is not a certified EVSE controller and not a production safety system.
+- Default input is replay telemetry. Live sensor override hooks exist but are not the default runtime path.
 
-## What This Project Is Not
-- Not a certified EVSE controller.
-- Not a production safety product.
-- Default data source is replay/simulated telemetry (live integration path is scaffolded but not default).
+## AI Engine (Exact Behavior)
+Core logic is in `src/power_data_source.c`, function `UpdateAiModel(...)`.
 
-## How The AI Works (Specific)
-AI logic lives in `src/power_data_source.c` (`UpdateAiModel`).
+### 1) Input And Timing
+- Tick rate: `20 Hz`.
+- Base signals per sample:
+- `voltage_mV`
+- `current_mA`
+- `power_mW`
+- `temp_c`
 
-### 1) Input Features (20 Hz)
-Per sample:
-- Voltage (`voltage_mV`)
-- Current (`current_mA`)
-- Power (`power_mW`)
-- Temperature (`temp_c`)
+### 2) Derived Features
+- EMA baselines for voltage/current/power/temperature.
+- Instant deltas: `dv`, `di`, `dp`.
+- Residual power error: measured power vs expected `V*I`.
+- Thermal slope and time-to-threshold estimates.
+- Connector drift/wear trend and thermal stress accumulation.
 
-Derived online features:
-- EMA voltage/current/power/temp
-- Current step (`di`), power step (`dp`)
-- Power residual vs expected (`P_measured - V*I`)
-- Thermal slope and estimated thermal risk horizon
-- Connector/wire thermal accumulation and wear trend
-- Drift metric (actual thermal response vs expected thermal model)
-
-### 2) Fault/Anomaly Signals
-The model evaluates:
+### 3) Fault Flags
+The engine raises bit-flags when conditions are met:
 - `AI_FAULT_VOLTAGE_SAG`
 - `AI_FAULT_CURRENT_SPIKE`
 - `AI_FAULT_POWER_UNSTABLE`
 
-It computes:
+It also computes:
 - `anomaly_score_pct`
 - `thermal_risk_s`
 - `predicted_overtemp_s`
@@ -48,39 +47,54 @@ It computes:
 - `wire_risk_pct`
 - `thermal_damage_risk_pct`
 
-### 3) Status Classification
-AI status transitions:
+### 4) Status Classification
+Status is classified as:
 - `NORMAL`
 - `WARNING`
 - `FAULT`
 
-Using threshold logic + hold/latch behavior:
-- warning/fault hold timers reduce flicker and status bounce
-- startup/low-current guardrails suppress false instability at idle
+Classification uses threshold combinations plus hold/latch timers to avoid flicker and immediate bounce back to green after transient events.
 
-### 4) Decision Layer
-When AI assist is enabled:
+### 5) AI Decisions (AI ON)
+With AI assist enabled (`PowerData_SetAiAssistEnabled(true)`), the engine chooses:
 - `WATCH`
 - `DERATE_15`
 - `DERATE_30`
 - `SHED_LOAD`
 
-Decision is based on anomaly severity, thermal trend/risk horizon, and fault combinations.
-Decision output adjusts modeled current/power/thermal trajectory and records preventive events.
+These decisions actively modify modeled output (current/power/thermal trajectory), apply mitigation, and increment preventive-event counters when a severe pre-mitigation fault is avoided.
 
-### 5) UI Rendering Contract
-- Gauge text updates only when each gauge value changes.
-- Warning bar redraws only when rendered warning state changes.
-- Timeline/scope updates are change-driven to reduce raster flash.
+### 6) Rule Mode (AI OFF)
+With AI assist disabled, decision output is forced to `NONE` and UI uses rule-based status/warnings from deterministic thresholds (temperature/power limits). No active mitigation derating is applied by the AI layer.
+
+## Warning Text Contract
+Warning banner headline:
+- AI ON: `EDGEAI WARNING`
+- AI OFF: `ALGO WARNING`
+
+Second-line detail text set:
+- AI ON:
+- `VOLTAGE SAG`
+- `CURRENT SPIKE`
+- `POWER UNSTABLE`
+- `THERMAL RISK %us`
+- `CONNECTOR DRIFT` (OUTLET mode only)
+- AI OFF:
+- `RULE SHUTDOWN TEMP`
+- `RULE OVERCURRENT`
+- `RULE NEAR OVERTEMP`
+- `RULE OVERCURRENT WARN`
+- `RULE Analyzing....` (fallback)
+- `RULE Fault Check` (rare fallback)
 
 ## Replay Profiles
-- `WIRED`: hardwired wall-connector style higher current, lower sag.
-- `OUTLET`: outlet-style lower current with increased sag/thermal stress.
+- `WIRED`: hardwired wall-connector behavior, higher sustained current, lower sag/drift sensitivity.
+- `OUTLET`: lower sustained current with greater sag/thermal drift sensitivity and connector drift handling.
 
-`1H` startup behavior:
-- `0:00-2:00` handshake/idle (`0 A`, room temp)
-- `2:00-12:00` staged startup tests with visible current pulses
-- then ramp to full charge behavior
+`1H` startup sequence:
+- `0:00-0:30`: handshake/idle at room temperature (`0 A`).
+- `0:30-10:30`: staged startup validation pulses and current tests.
+- Then ramp to bulk charging, later taper, then idle/cool.
 
 ## Build And Flash
 ```bash
@@ -91,13 +105,12 @@ BUILD_DIR=mcuxsdk_ws/build_anomaly ./tools/flash_frdmmcxn947.sh
 ```
 
 ## Restore / Failsafe
-Latest golden/failsafe restore info is tracked in:
 - `docs/RESTORE_POINTS.md`
 - `docs/failsafe.md`
 
 ## Repository Layout
 - `src/` firmware source
-- `docs/` runbooks/state/restore docs
-- `tools/` setup/build/flash utilities
-- `data/` replay CSV assets
-- `failsafe/` golden restore binaries + checksum + metadata
+- `docs/` runbooks, restore/failsafe docs
+- `tools/` setup/build/flash scripts
+- `data/` replay assets
+- `failsafe/` restore binaries + checksums + metadata

@@ -246,12 +246,24 @@ static bool TouchInProfileSwitch(int32_t x, int32_t y)
            (y >= GAUGE_RENDER_PROFILE_Y0) && (y <= GAUGE_RENDER_PROFILE_Y1);
 }
 
+static bool TimingCounterInit(void)
+{
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CYCCNT = 0u;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+    return (DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk) != 0u;
+}
+
 int main(void)
 {
     bool ai_enabled = true;
     bool lcd_ok;
-    uint32_t data_tick_accum_us = 0u;
-    uint32_t render_tick_accum_us = 0u;
+    uint64_t data_tick_accum_cycles = 0u;
+    uint64_t render_tick_accum_cycles = 0u;
+    uint32_t data_tick_period_cycles = 0u;
+    uint32_t render_tick_period_cycles = 0u;
+    uint32_t last_cycle = 0u;
+    bool use_cycle_timing = false;
     const power_sample_t *sample;
 
     BOARD_InitHardware();
@@ -263,6 +275,20 @@ int main(void)
     PowerData_SetAiAssistEnabled(ai_enabled);
     TouchInit();
     PowerData_SetReplayHour(GaugeRender_GetTimelineHour());
+    {
+        uint32_t core_hz = CLOCK_GetCoreSysClkFreq();
+        use_cycle_timing = TimingCounterInit();
+        if (core_hz != 0u)
+        {
+            data_tick_period_cycles = (uint32_t)(((uint64_t)core_hz * POWER_TICK_PERIOD_US) / 1000000ull);
+            render_tick_period_cycles = (uint32_t)(((uint64_t)core_hz * DISPLAY_REFRESH_PERIOD_US) / 1000000ull);
+        }
+        if ((data_tick_period_cycles == 0u) || (render_tick_period_cycles == 0u))
+        {
+            use_cycle_timing = false;
+        }
+        last_cycle = DWT->CYCCNT;
+    }
 
     sample = PowerData_Get();
     if (lcd_ok && (sample != NULL))
@@ -274,6 +300,14 @@ int main(void)
 
     for (;;)
     {
+        if (use_cycle_timing)
+        {
+            uint32_t now_cycle = DWT->CYCCNT;
+            uint32_t delta_cycles = now_cycle - last_cycle;
+            last_cycle = now_cycle;
+            data_tick_accum_cycles += delta_cycles;
+            render_tick_accum_cycles += delta_cycles;
+        }
         int32_t tx = 0;
         int32_t ty = 0;
         bool pressed = TouchGetPoint(&tx, &ty);
@@ -309,19 +343,38 @@ int main(void)
         }
         s_touch_was_down = pressed;
 
-        data_tick_accum_us += TOUCH_POLL_DELAY_US;
-        render_tick_accum_us += TOUCH_POLL_DELAY_US;
-
-        if (data_tick_accum_us >= POWER_TICK_PERIOD_US)
+        if (use_cycle_timing)
         {
-            data_tick_accum_us = 0u;
-            PowerData_Tick();
+            while (data_tick_accum_cycles >= data_tick_period_cycles)
+            {
+                data_tick_accum_cycles -= data_tick_period_cycles;
+                PowerData_Tick();
+            }
+
+            if (lcd_ok && (render_tick_accum_cycles >= render_tick_period_cycles))
+            {
+                render_tick_accum_cycles -= render_tick_period_cycles;
+                GaugeRender_DrawFrame(PowerData_Get(), ai_enabled, PowerData_GetReplayProfile());
+            }
         }
-
-        if (lcd_ok && (render_tick_accum_us >= DISPLAY_REFRESH_PERIOD_US))
+        else
         {
-            render_tick_accum_us = 0u;
-            GaugeRender_DrawFrame(PowerData_Get(), ai_enabled, PowerData_GetReplayProfile());
+            static uint32_t data_tick_accum_us = 0u;
+            static uint32_t render_tick_accum_us = 0u;
+            data_tick_accum_us += TOUCH_POLL_DELAY_US;
+            render_tick_accum_us += TOUCH_POLL_DELAY_US;
+
+            if (data_tick_accum_us >= POWER_TICK_PERIOD_US)
+            {
+                data_tick_accum_us = 0u;
+                PowerData_Tick();
+            }
+
+            if (lcd_ok && (render_tick_accum_us >= DISPLAY_REFRESH_PERIOD_US))
+            {
+                render_tick_accum_us = 0u;
+                GaugeRender_DrawFrame(PowerData_Get(), ai_enabled, PowerData_GetReplayProfile());
+            }
         }
 
         SDK_DelayAtLeastUs(TOUCH_POLL_DELAY_US, CLOCK_GetCoreSysClkFreq());

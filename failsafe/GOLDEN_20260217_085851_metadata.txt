@@ -1,0 +1,9 @@
+Golden ID: GOLDEN_20260217_085851
+Project: EdgeAI_EV_Charger_Anomaly_demo_NXP_FRDM-MCXN947
+Date: 2026-02-17
+Source Binary: mcuxsdk_ws/mcuxsdk_ws/build_anomaly/edgeai_ev_charger_monitor_demo_cm33_core0.bin
+Failsafe Binary: failsafe/edgeai_ev_charger_anomaly_demo_cm33_core0_GOLDEN_20260217_085851.bin
+Checksum File: failsafe/edgeai_ev_charger_anomaly_demo_cm33_core0_GOLDEN_20260217_085851.sha256
+Board: FRDM-MCXN947
+Probe: HZ22T3AOM4Z55
+Notes: Includes latest warning-text rendering fixes and updated README AI architecture documentation.

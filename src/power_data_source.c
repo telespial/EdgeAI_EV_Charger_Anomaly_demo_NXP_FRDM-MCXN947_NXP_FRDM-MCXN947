@@ -52,9 +52,14 @@ static uint32_t ReplayIndexToSimSeconds(uint32_t replay_index)
     return (replay_index * POWER_SAMPLE_PERIOD_MS * POWER_SIM_TIME_SCALE) / 1000u;
 }
 
-static uint32_t ReplayIndexToReplaySeconds(uint32_t replay_index)
+static void InitElapsedRtc(void)
 {
-    return (replay_index * POWER_SAMPLE_PERIOD_MS) / 1000u;
+    /* Disabled: some boards can hold IRTC invalid and block in datetime reads at boot. */
+}
+
+static uint32_t GetElapsedRealSeconds(void)
+{
+    return gPowerData.elapsed_ms_real / 1000u;
 }
 
 static int32_t AbsI32(int32_t v)
@@ -191,7 +196,7 @@ static power_sample_t SampleFromReplay(uint32_t index, power_replay_profile_t pr
     int32_t temp_c;
     uint32_t ripple;
     uint32_t watts;
-    uint32_t handshake_ticks = (120u * 1000u) / POWER_SAMPLE_PERIOD_MS;
+    uint32_t handshake_ticks = (30u * 1000u) / POWER_SAMPLE_PERIOD_MS;
     uint32_t test_ticks = (600u * 1000u) / POWER_SAMPLE_PERIOD_MS;
     uint32_t full_ramp_ticks = (300u * 1000u) / POWER_SAMPLE_PERIOD_MS;
     uint32_t startup_ticks = handshake_ticks + test_ticks + full_ramp_ticks;
@@ -617,7 +622,8 @@ static void UpdateAiModel(const power_sample_t *prev)
             thermal_risk_s = 0;
         }
     }
-    if ((gPowerData.drift_c10_ema > 45) && (i_mA > 24000) && ((thermal_risk_s == 0) || (thermal_risk_s > 90)))
+    if ((gPowerData.replay_profile == POWER_REPLAY_PROFILE_OUTLET) &&
+        (gPowerData.drift_c10_ema > 45) && (i_mA > 24000) && ((thermal_risk_s == 0) || (thermal_risk_s > 90)))
     {
         thermal_risk_s = 90;
     }
@@ -631,7 +637,7 @@ static void UpdateAiModel(const power_sample_t *prev)
         }
     }
 
-    if (gPowerData.drift_c10_ema > 0)
+    if ((gPowerData.replay_profile == POWER_REPLAY_PROFILE_OUTLET) && (gPowerData.drift_c10_ema > 0))
     {
         anomaly += gPowerData.drift_c10_ema / 4;
     }
@@ -657,6 +663,10 @@ static void UpdateAiModel(const power_sample_t *prev)
     if (drift_pct > 100)
     {
         drift_pct = 100;
+    }
+    if (gPowerData.replay_profile != POWER_REPLAY_PROFILE_OUTLET)
+    {
+        drift_pct = 0;
     }
 
     connector_risk = (thermal_wear_pct * 55 + drift_pct * 45 + anomaly * 25) / 100;
@@ -824,7 +834,7 @@ static void SeedDerivedStateFromCurrent(void)
     uint32_t i;
     int32_t temp_c10 = (int32_t)gPowerData.current.temp_c * 10;
 
-    gPowerData.elapsed_ms_real = gPowerData.replay_index * POWER_SAMPLE_PERIOD_MS;
+    gPowerData.elapsed_ms_real = GetElapsedRealSeconds() * 1000u;
     gPowerData.elapsed_ms_sim = gPowerData.elapsed_ms_real * POWER_SIM_TIME_SCALE;
     gPowerData.ema_voltage_cV = (int32_t)gPowerData.current.voltage_mV;
     gPowerData.ema_current_mA = (int32_t)gPowerData.current.current_mA;
@@ -851,7 +861,6 @@ static void SeedDerivedStateFromCurrent(void)
 
     UpdateAiModel(0);
     gPowerData.current.elapsed_charge_sim_s = ReplayIndexToSimSeconds(gPowerData.replay_index);
-    gPowerData.current.elapsed_charge_s = ReplayIndexToReplaySeconds(gPowerData.replay_index);
 }
 
 void PowerData_Init(void)
@@ -892,6 +901,7 @@ void PowerData_Init(void)
         gPowerData.temp_hist_c10[i] = (int16_t)gPowerData.ema_temp_c10;
     }
 
+    InitElapsedRtc();
     UpdateAiModel(0);
 }
 
@@ -951,7 +961,6 @@ void PowerData_Tick(void)
     gPowerData.current = SampleFromReplay(gPowerData.replay_index, gPowerData.replay_profile);
     UpdateAiModel(&prev);
     gPowerData.current.elapsed_charge_sim_s = ReplayIndexToSimSeconds(gPowerData.replay_index);
-    gPowerData.current.elapsed_charge_s = ReplayIndexToReplaySeconds(gPowerData.replay_index);
 }
 
 const power_sample_t *PowerData_Get(void)
@@ -1019,7 +1028,6 @@ void PowerData_SetReplayProfile(power_replay_profile_t profile)
     gPowerData.replay_profile = profile;
     gPowerData.current = SampleFromReplay(gPowerData.replay_index, gPowerData.replay_profile);
     gPowerData.current.elapsed_charge_sim_s = ReplayIndexToSimSeconds(gPowerData.replay_index);
-    gPowerData.current.elapsed_charge_s = ReplayIndexToReplaySeconds(gPowerData.replay_index);
 }
 
 power_replay_profile_t PowerData_GetReplayProfile(void)
