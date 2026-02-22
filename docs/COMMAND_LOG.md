@@ -333,3 +333,4 @@ Format:
 - 2026-02-22 07:52:33 | inspect EV charger repo tracking/ignore/docs state before AGENTS hide operation
 - 2026-02-22 07:52:42 | update .gitignore + git rm --cached AGENTS.md | hide AGENTS instructions from GitHub while keeping local file
 - 2026-02-22 07:53:00 | update docs/PROJECT_STATE.md | recorded AGENTS ignore/untrack repo-hygiene change
+- 2026-02-22 07:53:01 | post-push verification (AGENTS local presence + clean git status) | AGENTS no longer tracked on GitHub
